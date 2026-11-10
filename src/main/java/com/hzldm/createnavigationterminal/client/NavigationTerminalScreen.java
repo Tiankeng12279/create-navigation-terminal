@@ -371,9 +371,6 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
                 Component.literal("只读：不允许把当前航线写入这张卡")));
         this.addRenderableWidget(this.readOnlyBtn);
 
-
-
-
         // ---- 右侧按钮组 1：航线操作 ----
         // 循环/单程：文字随当前状态变，点一下切一次并重建控件
         net.minecraft.client.gui.components.Button loopBtn =
@@ -2358,7 +2355,6 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
         int idx2;
         double relX = mouseX - (double)this.leftPos;
         double relY = mouseY - (double)this.topPos;
-
         // 右键菜单已打开：优先处理菜单点击
         if (this.menuIdx >= 0) {
             this.handleMenuClick(relX, relY, button);
@@ -2399,7 +2395,11 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
             return true;
         }
 
-        if (relX >= 340.0 && relX <= 464.0 && relY >= 105.0 && relY < 185.0 && !this.candidates.isEmpty() && (idx2 = this.scroll + (row2 = (int)((relY - 105.0) / 16.0))) >= 0 && idx2 < this.candidates.size()) {
+        // 命中区必须与 renderCandidatePanel 的绘制一致：首行 y=106，行高 15，行内可点区 rowY-3..rowY+11
+        if (relX >= 338.0 && relX <= 464.0 && relY >= 103.0 && relY < 103.0 + 5 * 15.0
+                && !this.candidates.isEmpty()
+                && (idx2 = this.scroll + (row2 = (int) Math.floor((relY - 103.0) / 15.0))) >= 0
+                && idx2 < this.candidates.size()) {
             if (button == 1) {
                 this.menuIdx = idx2;
                 int items = this.menuItemCount(idx2);
@@ -2421,7 +2421,9 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
                 return true;
             }
             WpTarget t = this.candidates.get(idx2);
-            PacketDistributor.sendToServer((CustomPacketPayload)new SetNavigationTargetPayload(this.pos(), t.name(), t.x(), t.y(), t.z(), t.dimension()), (CustomPacketPayload[])new CustomPacketPayload[0]);
+            PacketDistributor.sendToServer((CustomPacketPayload)new SetNavigationTargetPayload(
+                    this.pos(), t.name(), t.x(), t.y(), t.z(), t.dimension()),
+                    (CustomPacketPayload[])new CustomPacketPayload[0]);
             return true;
         }
         if (relX >= 258.0 && relX <= 330.0 && relY >= 56.0 && relY < 185.0 && (be = this.terminal()) != null && button == 0 && (idx = (row = (int)((relY - 56.0) / 18.0))) >= 0 && idx < be.getRoute().size()) {

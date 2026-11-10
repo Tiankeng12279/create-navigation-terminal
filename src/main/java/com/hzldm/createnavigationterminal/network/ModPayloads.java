@@ -1,6 +1,7 @@
 package com.hzldm.createnavigationterminal.network;
 
 import com.hzldm.createnavigationterminal.CreateNavigationTerminal;
+import com.hzldm.createnavigationterminal.integration.sable.SableTransform;
 import com.hzldm.createnavigationterminal.blockentity.NavigationTerminalBlockEntity;
 import com.hzldm.createnavigationterminal.item.WaypointCardData;
 import com.hzldm.createnavigationterminal.item.WaypointCardItem;
@@ -8,6 +9,7 @@ import com.hzldm.createnavigationterminal.item.WpTarget;
 import com.hzldm.createnavigationterminal.registry.ModDataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -164,6 +166,7 @@ public final class ModPayloads {
     }
 
     /** 复位「已到达」锁存 */
+
     private static void handleResetArrived(ResetArrivedPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             NavigationTerminalBlockEntity terminal = resolveTerminal(payload.pos(), context);
@@ -511,10 +514,49 @@ public final class ModPayloads {
         if (!(context.player() instanceof ServerPlayer player) || pos == null) {
             return null;
         }
-        if (!(player.level().getBlockEntity(pos) instanceof NavigationTerminalBlockEntity terminal)) {
+
+        // ① 优先玩家所在 level（普通方块就在这一层）
+        NavigationTerminalBlockEntity terminal = null;
+        if (player.level().getBlockEntity(pos) instanceof NavigationTerminalBlockEntity t) {
+            terminal = t;
+        }
+
+        // ② 找不到就扫其它已加载 level —— 终端装在 Sable SubLevel（载具内部）时，
+        //    玩家可能站在主世界里点界面，此时 pos 是 SubLevel 局部坐标，第 ① 步必然落空。
+        if (terminal == null && player.getServer() != null) {
+            for (ServerLevel lvl : player.getServer().getAllLevels()) {
+                if (lvl == player.level()) {
+                    continue;
+                }
+                if (lvl.getBlockEntity(pos) instanceof NavigationTerminalBlockEntity t) {
+                    terminal = t;
+                    break;
+                }
+            }
+        }
+        if (terminal == null) {
             return null;
         }
-        double dsq = player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
-        return dsq <= MAX_INTERACT_DISTANCE_SQR ? terminal : null;
+
+        // ③ 距离校验必须用「世界坐标」——SubLevel 里 terminal.getBlockPos() 是局部坐标
+        //    （实测 20481032,128,20481032），拿它跟玩家世界坐标相减会得到天文数字，
+        //    结果所有点击都被判成“太远”而静默丢弃（设目标 / 加航线 / 加当前位置全部失效）。
+        double dsq;
+        if (SableTransform.isAvailable() && SableTransform.isInSubLevel(terminal)) {
+            dsq = player.distanceToSqr(SableTransform.worldCenter(terminal));
+        } else if (terminal.getLevel() != player.level()) {
+            return null;      // 跨 level 但不是 SubLevel：不放行
+        } else {
+            dsq = player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+        }
+
+        if (dsq > MAX_INTERACT_DISTANCE_SQR) {
+            CreateNavigationTerminal.LOGGER.warn(
+                    "[Nav] 交互被拒：距离平方={} > {}（terminal={} level={}）",
+                    String.format(java.util.Locale.ROOT, "%.1f", dsq),
+                    MAX_INTERACT_DISTANCE_SQR, pos, terminal.getLevel().dimension().location());
+            return null;
+        }
+        return terminal;
     }
 }

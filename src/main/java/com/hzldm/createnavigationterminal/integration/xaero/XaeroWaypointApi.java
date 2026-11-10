@@ -39,11 +39,10 @@ public final class XaeroWaypointApi {
      * 只查 mod 列表，不触碰任何 {@code xaero.*} 类型，可安全调用。
      */
     public static boolean isAvailable() {
-        if (!ModList.get().isLoaded("xaerominimap")) {
-            return false;
-        }
+        boolean mod = ModList.get().isLoaded("xaerominimap");
         Minecraft mc = Minecraft.getInstance();
-        return mc != null && mc.player != null && mc.level != null;
+        boolean ready = mc != null && mc.player != null && mc.level != null;
+        return mod && ready;
     }
 
     /**
@@ -84,8 +83,10 @@ public final class XaeroWaypointApi {
                 }
                 out.add(new XaeroReflect.RawWp(name, wp.getX(), wp.getY(), wp.getZ()));
             }
-        } catch (Throwable ignored) {
-            // Xaero 内部状态异常时返回已收集到的部分
+        } catch (Throwable t) {
+            // Xaero 内部状态异常时返回已收集到的部分，但把原因说出来（否则界面只是"空列表"）
+            com.hzldm.createnavigationterminal.CreateNavigationTerminal.LOGGER.warn(
+                    "[Xaero] listWaypoints 异常：{}", t.toString());
         }
         return out;
     }
