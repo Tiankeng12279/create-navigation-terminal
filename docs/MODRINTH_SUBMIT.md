@@ -69,6 +69,23 @@
 构建：`gradlew.bat build`（完整版）/ `gradlew.bat build -PnoXaero`（无 Xaero 变体）
 ```
 
+### 英文版（Modrinth 提交用）
+
+```markdown
+First public release — version numbering restarts at 1.0.0.
+
+- Navigation Terminal (block): three-tab GUI; distance ramp / arrival switch / fixed power; max power 0-15, coverage range 8-512, arrival radius 1-64; three parameter presets
+- Routes: multi-stop, reorderable, one-way or loop; cross-dimension targets emit full signal plus a hint
+- Distance is horizontal only and computed server-side every 8 ticks (GUI and redstone share one source)
+- Waypoint Card: up to 32 points per card, nameable, read-only lockable; dye it with any of 16 dyes in a crafting table to sort routes
+- Vehicle HUD: shown while seated on a bound seat; bearing uses camera position + camera attitude
+- Fleet channel: share targets within a channel, push target / route, or go solo
+- Ponder: 6 built-in scenes (auto-installed when Ponderer is present)
+- Xaero integration is optional and read-only; a `-noxaero` variant ships with no interop classes at all
+
+Build: `gradlew.bat build` (full) / `gradlew.bat build -PnoXaero` (no-Xaero variant)
+```
+
 ---
 
 ## 四、文件（同一版本下挂两个文件）
