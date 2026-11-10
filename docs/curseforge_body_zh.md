@@ -94,3 +94,8 @@ NullPointerException: Trying to access unbound value:
 ## 许可
 
 **MIT License**（作者 HZLDM）。第三方模组名称与商标归各自作者；本模组不含任何反编译代码、破解补丁或授权绕过功能。
+
+### 开发过程说明（AI 参与）
+
+本项目的**代码与文档在 AI 辅助下完成**（Modrinth 披露项：*Contains AI-generated content* 已勾选）。
+贴图（方块/物品/卡片/图标）为作者本人绘制。模组**运行时不含任何生成式 AI 功能**，不联网、不调用外部模型。

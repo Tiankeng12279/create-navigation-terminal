@@ -585,6 +585,12 @@ claim, so it was removed entirely; the pre-removal revision is archived at `_bac
 - **joml** (`org.joml`): bundled with Minecraft; only its public maths API is used
 - This project contains **no** decompiled code, crack patches, key generators, or licence-verification bypasses
 
+### Development note (AI involvement)
+
+This project's **code and documentation were produced with AI assistance** (Modrinth disclosure:
+*Contains AI-generated content* is enabled). Textures (block / item / cards / icon) are drawn by the author.
+The mod **contains no generative-AI functionality at runtime** — it makes no network calls and invokes no models.
+
 ---
 
 ## 14. Disclaimer and Terms of Use

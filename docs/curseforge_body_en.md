@@ -94,3 +94,9 @@ Debug direction: disable mods that rewrite ingredient parsing (e.g. Polymorph) a
 ## Licence
 
 **MIT License** (author HZLDM). All third-party mod names and trademarks belong to their authors. This mod contains no decompiled code, crack patches, or licence-verification bypasses.
+
+### Development note (AI involvement)
+
+This project's **code and documentation were produced with AI assistance** (Modrinth disclosure:
+*Contains AI-generated content* is enabled). Textures (block / item / cards / icon) are drawn by the author.
+The mod **contains no generative-AI functionality at runtime** — it makes no network calls and invokes no models.

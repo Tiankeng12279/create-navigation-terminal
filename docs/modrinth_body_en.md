@@ -131,3 +131,9 @@ Per-version history lives in `CHANGELOG.md`; recent versions:
 
 > The Xaero integration is a good-faith interoperability effort. If the rights holder objects, contact us and it
 > will be removed — falling back to the no-Xaero implementation immediately.
+
+### Development note (AI involvement)
+
+This project's **code and documentation were produced with AI assistance** (Modrinth disclosure:
+*Contains AI-generated content* is enabled). Textures (block / item / cards / icon) are drawn by the author.
+The mod **contains no generative-AI functionality at runtime** — it makes no network calls and invokes no models.
