@@ -1436,7 +1436,7 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
     }
 
     /** 驾驶锁：自动模式下禁止改目标，防止飞行中误触 */
-    private boolean driveLock = true;
+    private boolean driveLock = false;
 
     public boolean isDriveLocked() {
         return driveLock;
@@ -2235,7 +2235,7 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
         this.driveMode = tag.getInt("DriveMode") == DRIVE_MANUAL ? DRIVE_MANUAL : DRIVE_AUTO;
         this.flightStrategy = tag.getInt("FlightStrategy") == STRATEGY_ALIGN_FIRST
                 ? STRATEGY_ALIGN_FIRST : STRATEGY_FLY_AND_CORRECT;
-        this.driveLock = !tag.contains("DriveLock") || tag.getBoolean("DriveLock");
+        this.driveLock = tag.contains("DriveLock") && tag.getBoolean("DriveLock");
         this.headingOverride = tag.contains("HeadingOverride")
                 ? Math.max(-1, Math.min(3, tag.getInt("HeadingOverride"))) : -1;
         this.headingOffsetDeg = tag.getDouble("HeadingOffsetDeg");
