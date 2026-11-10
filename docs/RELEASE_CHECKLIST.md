@@ -1,6 +1,6 @@
 # 发布清单（CurseForge / Modrinth）
 
-版本：**1.1.93-beta** ｜ 目标：Minecraft **1.21.1** ｜ 加载器：**NeoForge 21.1.244+** ｜ 许可：**MIT License**
+版本：**1.0.0** ｜ 目标：Minecraft **1.21.1** ｜ 加载器：**NeoForge 21.1.244+** ｜ 许可：**MIT License**
 
 ---
 
@@ -8,10 +8,10 @@
 
 | 文件 | 大小 | SHA-256（前 16 位）| 说明 |
 |---|---|---|---|
-| `dist/create_navigation_terminal-1.1.93-beta.jar` | 408,271 B | `7351c9ced694e7b3` | 完整版（含 Xaero 只读互操作）|
-| `dist/create_navigation_terminal-noxaero-1.1.93-beta.jar` | 388,393 B | `c5f60dea35e22921` | **无 Xaero 互操作类** |
+| `dist/create_navigation_terminal-1.0.0.jar` | 408265 B | `b0de4057a818cb45` | 完整版（含 Xaero 只读互操作）|
+| `dist/create_navigation_terminal-noxaero-1.0.0.jar` | 388389 B | `f0ede6ac63c98cab` | **无 Xaero 互操作类** |
 
-> 完整 SHA-256 见 `docs/file_changelog_1.1.93_full.md` / `docs/file_changelog_1.1.93_noxaero.md`。
+> 完整 SHA-256 见 `docs/file_changelog_1.0.0_full.md` / `docs/file_changelog_1.0.0_noxaero.md`。
 
 重新构建：
 
@@ -77,8 +77,8 @@ gradlew.bat build -PissueTracker=https://github.com/<你>/<仓库>/issues
 |---|---|---|
 | 游戏版本 | 1.21.1 | 1.21.1 |
 | 加载器 | NeoForge | NeoForge |
-| Release type | **Beta**（版本号带 `-beta`）| **Beta** |
-| Changelog | `docs/file_changelog_1.1.93_full.md` | `docs/file_changelog_1.1.93_noxaero.md` |
+| Release type | **Release**（1.0.0 为正式首发）| **Release** |
+| Changelog | `docs/file_changelog_1.0.0_full.md` | `docs/file_changelog_1.0.0_noxaero.md` |
 | 主文件 | 是 | 否（作为附加文件）|
 
 ---

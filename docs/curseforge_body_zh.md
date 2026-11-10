@@ -10,8 +10,8 @@
 
 | 文件 | 内容 | 适用 |
 |---|---|---|
-| `create_navigation_terminal-1.1.93-beta.jar` | 完整功能（含 Xaero 只读互操作） | 常规使用 |
-| `create_navigation_terminal-noxaero-1.1.93-beta.jar` | **不含任何 Xaero 互操作类**，`mods.toml` 也不声明 Xaero 依赖；其余功能完全一致 | 需要零第三方互操作代码的场合 |
+| `create_navigation_terminal-1.0.0.jar` | 完整功能（含 Xaero 只读互操作） | 常规使用 |
+| `create_navigation_terminal-noxaero-1.0.0.jar` | **不含任何 Xaero 互操作类**，`mods.toml` 也不声明 Xaero 依赖；其余功能完全一致 | 需要零第三方互操作代码的场合 |
 
 ---
 

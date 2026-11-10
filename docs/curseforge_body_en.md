@@ -10,8 +10,8 @@
 
 | File | Content | When to use |
 |---|---|---|
-| `create_navigation_terminal-1.1.93-beta.jar` | Full feature set (includes read-only Xaero interop) | Normal use |
-| `create_navigation_terminal-noxaero-1.1.93-beta.jar` | **No Xaero interop classes**, and `mods.toml` declares no Xaero dependency; everything else identical | Environments that must not ship third-party interop code |
+| `create_navigation_terminal-1.0.0.jar` | Full feature set (includes read-only Xaero interop) | Normal use |
+| `create_navigation_terminal-noxaero-1.0.0.jar` | **No Xaero interop classes**, and `mods.toml` declares no Xaero dependency; everything else identical | Environments that must not ship third-party interop code |
 
 ---
 

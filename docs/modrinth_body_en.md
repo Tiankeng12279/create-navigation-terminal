@@ -119,11 +119,7 @@ Per-version history lives in `CHANGELOG.md`; recent versions:
 
 | Version | Summary |
 |---|---|
-| 1.1.93-beta | Removed the Xaero write path (integration is strictly read-only); compliance and reflection details documented |
-| 1.1.92-beta | Creative-tab icon re-cut to a 32×32 cropped texture |
-| 1.1.91-beta | Mod logo and creative-tab icon |
-| 1.1.90-beta | GUI/HUD string and object allocation caching (behaviour equivalent) |
-| 1.1.88-beta | Craft waypoint cards with dyes |
+| 1.0.0 | **First public release**: terminal + routes + presets + vehicle HUD + fleet channel + waypoint cards (naming / read-only / dye sorting) + 6 ponder scenes; Xaero integration optional and read-only, with a `-noxaero` variant |
 
 ---
 

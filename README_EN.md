@@ -14,7 +14,7 @@
 | Field | Value |
 |---|---|
 | mod id | `create_navigation_terminal` |
-| Version | `1.1.93-beta` (see `gradle.properties`) |
+| Version | `1.0.0` (see `gradle.properties`) |
 | Minecraft | **1.21.1** |
 | NeoForge | **21.1.244** (compile), verified on 21.1.252 at runtime |
 | Java | **21** |
@@ -489,9 +489,9 @@ No — re-enter the world.
 | 2.8.x | Box marker + 6 styles; true pitch placement; top/bottom edge arrows |
 | **2.9.2** | **Switched to 3D projection (camera basis vectors); fixed MC left-handed space; position smoothing** |
 
-> The current version scheme is `1.1.x` (see `gradle.properties`), which does not share numbering with the historical table above; the table is kept verbatim for reference.
+> Numbering restarts at public release: the first public version is **`1.0.0`** (see `gradle.properties`). The table above lists internal iterations from before the public release; those numbers are retired and kept only for reference.
 
-### Capabilities present in `1.1.93-beta`
+### Capabilities present in `1.0.0`
 > For the full per-version history see [`CHANGELOG.md`](CHANGELOG.md); below is only a capability summary of the current build.
 
 
