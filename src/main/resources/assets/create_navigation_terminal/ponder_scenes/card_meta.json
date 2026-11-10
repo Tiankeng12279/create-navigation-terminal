@@ -1,0 +1,208 @@
+{
+  "id": "ponderer:card_meta",
+  "items": [
+    "create_navigation_terminal:waypoint_card"
+  ],
+  "title": {
+    "en_us": "Waypoint card: name and lock",
+    "zh_cn": "路点卡：命名与只读"
+  },
+  "structures": [
+    "ponderer:basic"
+  ],
+  "tags": [],
+  "customTags": {},
+  "editable": true,
+  "scenes": [
+    {
+      "id": "card_meta",
+      "title": {
+        "en_us": "Waypoint card: name and lock",
+        "zh_cn": "路点卡：命名与只读"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "ponderer:basic",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockProperties": {
+            "facing": "north",
+            "half": "bottom"
+          },
+          "blockPos": [
+            2,
+            1,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "show_interface",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockPos": [
+            2,
+            1,
+            2
+          ],
+          "interfaceSource": "block",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Pencil: name the route",
+            "zh_cn": "铅笔：给这条航线起名"
+          },
+          "point": [
+            -0.936,
+            0.217
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "The name shows in the tooltip",
+            "zh_cn": "名字会显示在卡片提示里"
+          },
+          "point": [
+            -0.936,
+            0.72
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Lock: make it read-only",
+            "zh_cn": "锁：设为只读"
+          },
+          "point": [
+            -0.936,
+            0.106
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            -0.936,
+            0.106
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 50
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Read-only blocks overwriting",
+            "zh_cn": "只读后终端不能再写入"
+          },
+          "point": [
+            -0.936,
+            0.553
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Write is refused",
+            "zh_cn": "点写会被拒绝"
+          },
+          "point": [
+            -0.936,
+            0.553
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Reading and renaming still work",
+            "zh_cn": "读取和改名不受影响"
+          },
+          "point": [
+            -0.936,
+            0.441
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 85
+        },
+        {
+          "type": "hide_interface",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        }
+      ]
+    }
+  ]
+}

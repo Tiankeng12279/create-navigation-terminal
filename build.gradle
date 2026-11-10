@@ -1,0 +1,199 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.141'
+    id 'idea'
+}
+
+version = mod_version
+group = mod_group_id
+
+sourceSets.main.resources {
+    srcDir('src/generated/resources')
+    exclude("src/generated/**/.cache")
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://api.modrinth.com/maven" }
+    maven { url "https://cursemaven.com" }
+}
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'fml.earlydisplay.disabled', 'true'
+            jvmArguments.addAll '-Xmx4G', '-Xms2G'
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all',
+                    '--output', file('src/generated/resources/').getAbsolutePath(),
+                    '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 无 Xaero 构建：`gradlew build -PnoXaero`
+//   排除所有读取第三方模组（Xaero）的源码，改用 src/noxaero/java 下的空实现。
+//   产物名带 -noxaero 后缀，mods.toml 里也不再声明 Xaero 依赖。
+// ---------------------------------------------------------------------------
+def noXaero = project.hasProperty('noXaero')
+
+if (noXaero) {
+    // 做法：把 src/main/java 复制一份并剔除互操作实现，再叠上 src/noxaero/java 的空实现。
+    // 不能直接用 sourceSets.exclude —— Gradle 的 exclude 只认包路径，会把同名空实现一起排除，
+    // 所以这里用 Sync 生成一份独立源码树，exclude 只作用于第一个 from。
+    def noXaeroSrc = layout.buildDirectory.dir("noxaero-src").get().asFile
+
+    tasks.register('prepareNoXaeroSources', Sync) {
+        into noXaeroSrc
+        from('src/main/java') {
+            exclude '**/integration/xaero/XaeroCacheReader.java'
+            exclude '**/integration/xaero/XaeroWaypointApi.java'
+            exclude '**/integration/xaero/XaeroMapSource.java'
+            exclude '**/integration/xaero/XaeroReflect.java'
+            exclude '**/integration/xaero/XaeroWaypointService.java'
+            exclude '**/client/XaeroMapCache.java'
+        }
+        from 'src/noxaero/java'
+    }
+
+    sourceSets.main.java.setSrcDirs([noXaeroSrc])
+    compileJava.dependsOn 'prepareNoXaeroSources'
+    processResources.dependsOn 'prepareNoXaeroSources'
+
+    base {
+        archivesName = "${mod_id}-noxaero"
+    }
+}
+
+dependencies {
+    // Xaero 只用 compileOnly：编译期拿类型信息，运行时可选。
+    // jar 放在 libs/ 下（已被 .gitignore 忽略，避免重分发第三方构建产物）。
+    // 未安装 Xaero 时，调用方必须先用 ModList.get().isLoaded(...) 保护，
+    // 否则 JVM 解析到这些类会抛 NoClassDefFoundError。
+    compileOnly files('libs/xaerominimap-compileonly.jar')
+    compileOnly files('libs/xaeroworldmap-compileonly.jar')
+  compileOnly files('libs/drivebywire-compileonly.jar')
+  compileOnly files('libs/sable-compileonly.jar')
+  compileOnly files('libs/sable-companion-compileonly.jar')
+
+}
+
+def XAERO_DEPS = """
+# 软依赖：Xaero 小地图 / 世界地图。通过反射读取标记点，缺失时界面降级提示，不影响方块与红石功能。
+[[dependencies.\${mod_id}]]
+modId = "xaerominimap"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"
+
+[[dependencies.\${mod_id}]]
+modId = "xaeroworldmap"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"
+"""
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            xaero_deps             : noXaero ? "" : XAERO_DEPS,
+            issue_tracker_url      : (project.findProperty('issueTracker') ?: ''),
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+    filteringCharset = 'UTF-8'
+}
+
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/repo"
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+// ================================================================
+// NeoForged Maven 镜像重定向（网络受限环境）
+// ----------------------------------------------------------------
+// 背景：maven.neoforged.net 在本机被网络层阻断（TLS 握手被 RST），
+//       而 CurseForge CDN 上的官方镜像 neoforged.forgecdn.net 可达。
+// 做法：moddev 插件在 apply 阶段自行添加 neoforged 官方仓库，
+//       这里用 configureEach 惰性改写其 URL。依赖解析在配置完成之后，
+//       因此改写生效。
+// ================================================================
+gradle.projectsEvaluated {
+    rootProject.allprojects { p ->
+        p.repositories.withType(org.gradle.api.artifacts.repositories.MavenArtifactRepository).configureEach { repo ->
+            def u = repo.url == null ? '' : repo.url.toString()
+            if (u.contains('maven.neoforged.net')) {
+                repo.url = p.uri(u.replace('https://maven.neoforged.net', 'https://neoforged.forgecdn.net'))
+                println("[NeoForged-Mirror] ${repo.name}: ${u} -> ${repo.url}")
+            }
+        }
+    }
+}

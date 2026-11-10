@@ -1,0 +1,267 @@
+{
+  "id": "ponderer:navigation_terminal_nav_basic",
+  "items": [
+    "create_navigation_terminal:navigation_terminal"
+  ],
+  "title": {
+    "en_us": "Navigation Terminal",
+    "zh_cn": "导航终端"
+  },
+  "structures": [
+    "ponderer:basic"
+  ],
+  "tags": [],
+  "customTags": {},
+  "editable": true,
+  "scenes": [
+    {
+      "id": "nav_basic",
+      "title": {
+        "en_us": "Open the terminal and set a target",
+        "zh_cn": "打开终端并设定目标"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "ponderer:basic",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "set_block",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockProperties": {
+            "facing": "north",
+            "half": "bottom"
+          },
+          "blockPos": [
+            2,
+            1,
+            2
+          ],
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 50,
+          "text": {
+            "en_us": "Place the Navigation Terminal",
+            "zh_cn": "放下导航终端"
+          },
+          "point": [
+            2.5,
+            1.5,
+            2.5
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "show_controls",
+          "duration": 60,
+          "point": [
+            2.5,
+            1.5,
+            2.5
+          ],
+          "direction": "down",
+          "action": "right",
+          "item": "create_navigation_terminal:navigation_terminal",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "show_interface",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockPos": [
+            2,
+            1,
+            2
+          ],
+          "interfaceSource": "block",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 60,
+          "text": {
+            "en_us": "Left column: waypoint card slot",
+            "zh_cn": "左栏：路点卡槽"
+          },
+          "point": [
+            -0.936,
+            0.72
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            -0.936,
+            0.72
+          ],
+          "action": "left"
+        },
+        {
+          "type": "text",
+          "duration": 60,
+          "text": {
+            "en_us": "Card inserted: route can be stored",
+            "zh_cn": "插卡后就能存航线"
+          },
+          "point": [
+            -0.936,
+            0.72
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 60,
+          "text": {
+            "en_us": "Route map: pick the target here",
+            "zh_cn": "航线地图：这里选目标"
+          },
+          "point": [
+            -0.404,
+            0.348
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 60,
+          "text": {
+            "en_us": "Current route",
+            "zh_cn": "当前航线"
+          },
+          "point": [
+            0.247,
+            0.348
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 60,
+          "text": {
+            "en_us": "Target info",
+            "zh_cn": "目标信息"
+          },
+          "point": [
+            0.702,
+            0.696
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 60,
+          "text": {
+            "en_us": "Write / Read / Rename / Lock",
+            "zh_cn": "写 读 改名 只读"
+          },
+          "point": [
+            -0.936,
+            0.441
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 60,
+          "text": {
+            "en_us": "Your inventory",
+            "zh_cn": "这里是你的物品栏"
+          },
+          "point": [
+            -0.711,
+            -0.217
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 60,
+          "text": {
+            "en_us": "Bottom: loop or one-way",
+            "zh_cn": "底部：循环或单程"
+          },
+          "point": [
+            0.247,
+            -0.255
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 85
+        },
+        {
+          "type": "hide_interface",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        }
+      ]
+    }
+  ]
+}

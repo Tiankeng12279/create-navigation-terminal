@@ -1,0 +1,40 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+issueTrackerURL = "${issue_tracker_url}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+logoFile = "create_navigation_terminal_logo.png"
+authors = "HZLDM"
+description = '''
+Navigation console blocks that read your Xaero's Minimap / World Map waypoints,
+drive adjustable redstone output from the distance to the selected waypoint,
+and stop navigating once the terminal reaches the target radius.
+'''
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+# 软依赖：线控（Drive-By-Wire）。提供多通道线缆信号源；缺失时终端功能完全正常，只是不能被线缆连接。
+[[dependencies.${mod_id}]]
+modId = "drivebywire"
+type = "required"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+${xaero_deps}

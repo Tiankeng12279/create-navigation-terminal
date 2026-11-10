@@ -1,0 +1,247 @@
+{
+  "id": "ponderer:card_basic",
+  "items": [
+    "create_navigation_terminal:waypoint_card"
+  ],
+  "title": {
+    "en_us": "Waypoint card: store and load",
+    "zh_cn": "路点卡：存取航线"
+  },
+  "structures": [
+    "ponderer:basic"
+  ],
+  "tags": [],
+  "customTags": {},
+  "editable": true,
+  "scenes": [
+    {
+      "id": "card_basic",
+      "title": {
+        "en_us": "Waypoint card: store and load",
+        "zh_cn": "路点卡：存取航线"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "ponderer:basic",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockProperties": {
+            "facing": "north",
+            "half": "bottom"
+          },
+          "blockPos": [
+            2,
+            1,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Waypoint card stores a route",
+            "zh_cn": "导航点卡：把航线装进物品"
+          },
+          "attachKeyFrame": true,
+          "point": [
+            2.5,
+            1.5,
+            2.5
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "create_item_entity",
+          "item": "create_navigation_terminal:waypoint_card",
+          "count": 1,
+          "pos": [
+            2.5,
+            2.2,
+            2.5
+          ],
+          "motion": [
+            0.0,
+            0.05,
+            0.0
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Up to 32 waypoints per card",
+            "zh_cn": "一张卡最多存 32 个导航点"
+          },
+          "point": [
+            2.5,
+            1.5,
+            2.5
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "idle",
+          "duration": 15
+        },
+        {
+          "type": "show_interface",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockPos": [
+            2,
+            1,
+            2
+          ],
+          "interfaceSource": "block",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Put the card into the left slot",
+            "zh_cn": "把卡放进左栏卡槽"
+          },
+          "point": [
+            -0.86,
+            0.72
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            -0.936,
+            0.72
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Write: save the current route",
+            "zh_cn": "写：保存当前航线"
+          },
+          "point": [
+            -0.86,
+            0.553
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            -0.936,
+            0.553
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 50
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Read: load the route back",
+            "zh_cn": "读：从卡导入航线"
+          },
+          "point": [
+            -0.86,
+            0.441
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            -0.936,
+            0.441
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 50
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Carry the card to another ship",
+            "zh_cn": "换船时把卡带过去就行"
+          },
+          "point": [
+            2.5,
+            1.5,
+            2.5
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 85
+        },
+        {
+          "type": "hide_interface",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+# Gradle
+.gradle/
+build/
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# Minecraft / moddev
+run/
+runs/
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 第三方 jar（compileOnly 用，绝不入库 —— 避免重分发他人构建产物）
+libs/
+
+# 逆向 / 分析产物（绝不入库）
+# 这些是格式研究过程中的中间物：反编译出的 .class、提取的第三方 jar、
+# 大量 .xwmc / .zip 样本、渲染对照图等。它们可能包含第三方受版权保护的内容，
+# 或包含第三方 mod 的反编译代码，不适合随项目分发。
+xaero-format/
+_decompiled/
+_rec/
+_xa/
+_xa2/
+_xa_src/
+_sab2/
+*.class.bak
+
+# 本地地图样本（玩家自己的缓存，属于用户数据）
+samples/
+*.xwmc
+*.xaero
+
+# 审查 / 临时报告
+合规清单-*.md
+*.corrupt.bak
+_*.py
+
+# 本地构建产物 / 备份（不入库）
+dist/
+_backup/
+*.opt-bak
+*.before-*
+
+# 发布用的临时密钥（绝不入库）
+_ghkey/

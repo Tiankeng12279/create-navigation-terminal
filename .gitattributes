@@ -1,0 +1,7 @@
+# 统一按 LF 存储，避免 Windows 上出现整文件换行变更
+* text=auto eol=lf
+*.jar binary
+*.png binary
+*.nbt binary
+gradlew text eol=lf
+gradlew.bat text eol=crlf

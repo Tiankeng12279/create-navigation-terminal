@@ -1,0 +1,262 @@
+{
+  "id": "ponderer:nav_params",
+  "items": [
+    "create_navigation_terminal:navigation_terminal"
+  ],
+  "title": {
+    "en_us": "Settings and parameters",
+    "zh_cn": "参数与设置"
+  },
+  "structures": [
+    "ponderer:basic"
+  ],
+  "tags": [],
+  "customTags": {},
+  "editable": true,
+  "scenes": [
+    {
+      "id": "nav_params",
+      "title": {
+        "en_us": "Settings and parameters",
+        "zh_cn": "参数与设置"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "ponderer:basic",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockProperties": {
+            "facing": "north",
+            "half": "bottom"
+          },
+          "blockPos": [
+            2,
+            1,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "show_interface",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockPos": [
+            2,
+            1,
+            2
+          ],
+          "interfaceSource": "block",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "The menu button opens settings",
+            "zh_cn": "三横杠打开设置"
+          },
+          "point": [
+            -0.936,
+            0.329
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            -0.936,
+            0.329
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 50
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Output page: power and range",
+            "zh_cn": "输出页：强度与距离"
+          },
+          "point": [
+            0.0,
+            0.55
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            -0.2,
+            0.68
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Arrows change the value",
+            "zh_cn": "点箭头调数值"
+          },
+          "point": [
+            -0.2,
+            0.68
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            0.017,
+            0.811
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 45
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "The small square switches pages",
+            "zh_cn": "右上小方块翻页"
+          },
+          "point": [
+            0.017,
+            0.811
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Drive page: strategy and lock",
+            "zh_cn": "驾驶页：策略与锁"
+          },
+          "point": [
+            0.0,
+            0.55
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            0.017,
+            0.811
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 45
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "PID page: steering feel",
+            "zh_cn": "PID 页：转向手感"
+          },
+          "point": [
+            0.0,
+            0.55
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 85
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            -0.936,
+            0.329
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 45
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Click again to close",
+            "zh_cn": "再点一次关闭设置"
+          },
+          "point": [
+            -0.936,
+            0.329
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 70
+        },
+        {
+          "type": "hide_interface",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        }
+      ]
+    }
+  ]
+}

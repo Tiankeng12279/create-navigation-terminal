@@ -1,0 +1,153 @@
+{
+  "id": "ponderer:nav_fleet",
+  "items": [
+    "create_navigation_terminal:navigation_terminal"
+  ],
+  "title": {
+    "en_us": "Fleet and push",
+    "zh_cn": "编队与推送"
+  },
+  "structures": [
+    "ponderer:basic"
+  ],
+  "tags": [],
+  "customTags": {},
+  "editable": true,
+  "scenes": [
+    {
+      "id": "nav_fleet",
+      "title": {
+        "en_us": "Fleet and push",
+        "zh_cn": "编队与推送"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "ponderer:basic",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockProperties": {
+            "facing": "north",
+            "half": "bottom"
+          },
+          "blockPos": [
+            2,
+            1,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "show_interface",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockPos": [
+            2,
+            1,
+            2
+          ],
+          "interfaceSource": "block",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Bottom bar: fleet channel",
+            "zh_cn": "底部是编队频道"
+          },
+          "point": [
+            0.532,
+            -0.62
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Same channel shares the target",
+            "zh_cn": "同频终端共享目标"
+          },
+          "point": [
+            0.532,
+            -0.62
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            0.302,
+            -0.851
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 45
+        },
+        {
+          "type": "text",
+          "duration": 70,
+          "text": {
+            "en_us": "Below: push target / push route / solo",
+            "zh_cn": "下面三个键：推送目标 / 推送航线 / 独占频道"
+          },
+          "point": [
+            0.532,
+            -0.62
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 90
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "idle",
+          "duration": 85
+        },
+        {
+          "type": "hide_interface",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        }
+      ]
+    }
+  ]
+}

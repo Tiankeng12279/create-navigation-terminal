@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "create_navigation_terminal:item/waypoint_card_red"
+  }
+}

@@ -1,0 +1,226 @@
+{
+  "id": "ponderer:nav_route",
+  "items": [
+    "create_navigation_terminal:navigation_terminal"
+  ],
+  "title": {
+    "en_us": "Route and loop",
+    "zh_cn": "航线与循环"
+  },
+  "structures": [
+    "ponderer:basic"
+  ],
+  "tags": [],
+  "customTags": {},
+  "editable": true,
+  "scenes": [
+    {
+      "id": "nav_route",
+      "title": {
+        "en_us": "Route and loop",
+        "zh_cn": "航线与循环"
+      },
+      "steps": [
+        {
+          "type": "show_structure",
+          "structure": "ponderer:basic",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "set_block",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockProperties": {
+            "facing": "north",
+            "half": "bottom"
+          },
+          "blockPos": [
+            2,
+            1,
+            2
+          ]
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "idle",
+          "duration": 20
+        },
+        {
+          "type": "show_interface",
+          "block": "create_navigation_terminal:navigation_terminal",
+          "blockPos": [
+            2,
+            1,
+            2
+          ],
+          "interfaceSource": "block",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 25
+        },
+        {
+          "type": "idle",
+          "duration": 40
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Right column: the route",
+            "zh_cn": "右列是当前航线"
+          },
+          "point": [
+            0.247,
+            0.351
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Right-click a waypoint to add it",
+            "zh_cn": "右键路点加入航线"
+          },
+          "point": [
+            0.702,
+            0.171
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Station order and page",
+            "zh_cn": "这里是站序和页码"
+          },
+          "point": [
+            0.247,
+            0.351
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Triangles reorder stations",
+            "zh_cn": "三角形调整站序"
+          },
+          "point": [
+            0.33,
+            -0.343
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Delete removes current station",
+            "zh_cn": "删除按钮移除当前站"
+          },
+          "point": [
+            0.247,
+            -0.219
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "click_interface",
+          "pos": [
+            0.247,
+            -0.255
+          ],
+          "action": "left"
+        },
+        {
+          "type": "idle",
+          "duration": 45
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Loop: back to the first stop",
+            "zh_cn": "循环：走完回到第一站"
+          },
+          "point": [
+            0.247,
+            -0.255
+          ],
+          "placeNearTarget": true,
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 80
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "One-way: stop at the last stop",
+            "zh_cn": "单程：停在最后一站"
+          },
+          "point": [
+            0.247,
+            -0.255
+          ],
+          "placeNearTarget": true
+        },
+        {
+          "type": "idle",
+          "duration": 85
+        },
+        {
+          "type": "hide_interface",
+          "attachKeyFrame": true
+        },
+        {
+          "type": "idle",
+          "duration": 30
+        },
+        {
+          "type": "text",
+          "duration": 55,
+          "text": {
+            "en_us": "Next stop is highlighted on the HUD",
+            "zh_cn": "下一站会高亮在 HUD 上"
+          },
+          "point": [
+            0.247,
+            -0.1
+          ],
+          "placeNearTarget": true
+        }
+      ]
+    }
+  ]
+}
