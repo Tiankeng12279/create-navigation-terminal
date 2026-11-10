@@ -8,6 +8,21 @@
 
 ---
 
+## [1.0.2] — 2026-11-10
+
+### Fixed
+- **修复 `mods.toml` 占位符未展开导致加载失败**：`noXaero` 开关把 Xaero 依赖块放进 Gradle 字符串后，
+  其中的 `${mod_id}` 被当成字面量写进了产物，游戏报 `Invalid bare key: '${mod_id}'`。
+  改为 Groovy 立即插值，两个变体的 `mods.toml` 均已无占位符（实测残留 = 0）。
+- **修复换存档后导航失效**：新增 `WorldStateCleaner` / `ClientCacheCleaner`，
+  在服务端停止、维度卸载、客户端断连时清空跨存档静态缓存
+  （编队注册表、信标扫描、已加载终端集合、日志去重、HUD 路点/去重/车道缓存、Xaero region 缓存）。
+
+### Changed
+- `mods.toml` 的 `issueTrackerURL` 填入仓库 issues 地址。
+
+---
+
 ## [1.0.0] — 2026-11-10
 
 **首个公开发布版本**（版本号自此重新起算）。

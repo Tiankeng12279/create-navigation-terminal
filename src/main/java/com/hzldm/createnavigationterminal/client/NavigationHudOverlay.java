@@ -646,6 +646,21 @@ public final class NavigationHudOverlay {
         current = null;
     }
 
+    /**
+     * 世界切换时清空全部客户端静态缓存。
+     *
+     * <p>否则换存档后 HUD 仍握着旧世界刷新来的路点列表、去重键、车道占位与距离文案缓存，
+     * 表现就是「换了存档导航仪不动了」。
+     */
+    public static void clearAllCaches() {
+        current = null;
+        cachedWaypoints = java.util.List.of();
+        lastWpRefresh = 0L;
+        DRAWN_KEYS.clear();
+        MARKER_SLOTS.clear();
+        DIST_LABEL_CACHE.clear();
+    }
+
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Post event) {
         long t0 = System.nanoTime();

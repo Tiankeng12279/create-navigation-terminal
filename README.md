@@ -13,7 +13,7 @@
 | 项 | 值 |
 |---|---|
 | mod id | `create_navigation_terminal` |
-| 当前版本 | `1.0.0`（见 `gradle.properties`）|
+| 当前版本 | `1.0.2`（见 `gradle.properties`）|
 | Minecraft | **1.21.1** |
 | NeoForge | **21.1.244**（编译期）、运行时 21.1.252 已验证 |
 | Java | **21** |
@@ -484,9 +484,9 @@ NullPointerException: Trying to access unbound value:
 | 2.8.x | 方框标记 + 6 种样式；真实俯仰角定位；上下贴边箭头 |
 | **2.9.2** | **改用 3D 投影（相机基向量）；修正 MC 左手系；位置平滑滤波** |
 
-> 公开发布起重新编号：首个公开版本为 **`1.0.0`**（见 `gradle.properties`）。上表是公开前的内部迭代记录，编号已废弃，仅作留档。
+> 公开发布起重新编号：首个公开版本为 **`1.0.2`**（见 `gradle.properties`）。上表是公开前的内部迭代记录，编号已废弃，仅作留档。
 
-### 当前版本（`1.0.0`）已有能力
+### 当前版本（`1.0.2`）已有能力
 > 完整的逐版本变更见仓库根目录的 [`CHANGELOG.md`](CHANGELOG.md)；下面只列当前版本的关键能力。
 
 

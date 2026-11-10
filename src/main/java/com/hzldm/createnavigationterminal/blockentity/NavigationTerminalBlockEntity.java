@@ -954,6 +954,17 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
         return ACTIVE;
     }
 
+    /** 世界切换时清空已加载集合（否则旧世界的终端会一直被引用） */
+    public static void clearActive() {
+        ACTIVE.clear();
+    }
+
+    /** 世界切换时清空「每次进存档只打一次」的日志去重集合 */
+    public static void clearLogDedup() {
+        NOSE_LOGGED.clear();
+        ARM_LOGGED.clear();
+    }
+
     /** 按当前参数与距离计算应输出的红石强度（0-15） */
     /** 供外部（线控桥）读取强度上限 */
     public int getMaxPowerForDisplay() {

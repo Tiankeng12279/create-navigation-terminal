@@ -407,6 +407,14 @@ public final class NavigationHudService {
 
     private static int lastBeaconCount = -1;
 
+    /** 世界切换时清空信标扫描缓存与状态缓存（换存档后不复用旧世界数据） */
+    public static void clearCaches() {
+        BEACON_POS_CACHE.clear();
+        BEACON_NAME_CACHE.clear();
+        LAST_STATE.clear();
+        lastBeaconCount = -1;
+    }
+
     /**
      * SubLevel 本地坐标 → 世界坐标。
      *

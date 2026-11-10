@@ -115,14 +115,14 @@ dependencies {
 
 def XAERO_DEPS = """
 # 软依赖：Xaero 小地图 / 世界地图。通过反射读取标记点，缺失时界面降级提示，不影响方块与红石功能。
-[[dependencies.\${mod_id}]]
+[[dependencies.${mod_id}]]
 modId = "xaerominimap"
 type = "optional"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "CLIENT"
 
-[[dependencies.\${mod_id}]]
+[[dependencies.${mod_id}]]
 modId = "xaeroworldmap"
 type = "optional"
 versionRange = "[0,)"
