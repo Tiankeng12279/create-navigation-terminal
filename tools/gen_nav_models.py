@@ -56,5 +56,9 @@ def build(src, dst, dy):
         json.dumps(out, ensure_ascii=False, indent=2) + "\n")
     print(f"{os.path.basename(dst):32s} 机身 {len(body)} + 控件 {len(ctrl)} = {len(out['cn_elements'])}")
 
+import sys
 build(SRC_FRONT, os.path.join(OUT_DIR, "navigation_terminal.json"), 0.0)
-build(SRC_TOP,   os.path.join(OUT_DIR, "navigation_terminal_inverted.json"), DY)
+if "--both" in sys.argv:
+    build(SRC_TOP, os.path.join(OUT_DIR, "navigation_terminal_inverted.json"), DY)
+else:
+    print("跳过反放模型（默认不覆盖；要一起生成请加 --both）")
