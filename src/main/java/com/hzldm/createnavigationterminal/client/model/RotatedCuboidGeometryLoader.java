@@ -106,7 +106,14 @@ public final class RotatedCuboidGeometryLoader
                 out.add(new RotatedCuboidGeometry.ElemSpec(from, to, rotation, shade, faces));
             }
         }
-        return new RotatedCuboidGeometry(cullCoveredFaces(out));
+        // 隐藏面剔除默认关闭。
+        //
+        // 原因：cullCoveredFaces() 用 3x3 采样判断"面是否被别的块盖住"，采样点只落在面内部
+        // 3/4 区域，边缘未检查；只要遮挡块比被遮挡面略小，就会误剔出洞
+        // （实测表现：外壳少一面、能看进机箱内部，反放模型尤其明显）。
+        // 面数只有 216，剔除收益远小于视觉风险，因此默认关闭。
+        // 需要时把 CULL_COVERED_FACES 改为 true，并确保 coveredByOther() 用"整面覆盖"判定。
+        return new RotatedCuboidGeometry(CULL_COVERED_FACES ? cullCoveredFaces(out) : out);
     }
 
     // ------------------------------------------------------------------
@@ -118,6 +125,9 @@ public final class RotatedCuboidGeometryLoader
     // 如果每个点都落在别的元素内部，就认为这个面被盖住、不烘。
     // 旋转元素一律保留（旋转后的盒子判定复杂，宁可不省）。
     // ------------------------------------------------------------------
+
+    /** 是否启用隐藏面剔除（默认关闭，见 addQuads 处说明） */
+    private static final boolean CULL_COVERED_FACES = false;
 
     private static final float EPS = 0.02F;
 
