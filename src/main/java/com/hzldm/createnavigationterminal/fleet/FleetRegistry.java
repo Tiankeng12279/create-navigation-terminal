@@ -80,6 +80,35 @@ public final class FleetRegistry {
         return out;
     }
 
+    /** 取某维度某频道的全部终端坐标（只读副本，不排除任何位置）。 */
+    public static List<BlockPos> members(ResourceKey<Level> dim, int channel) {
+        List<BlockPos> out = new ArrayList<>();
+        Map<BlockPos, Integer> m = ENTRIES.get(dim);
+        if (m == null) {
+            return out;
+        }
+        for (Map.Entry<BlockPos, Integer> e : m.entrySet()) {
+            if (e.getValue() != null && e.getValue() == channel) {
+                out.add(e.getKey());
+            }
+        }
+        return out;
+    }
+
+    /** 该维度里正在使用的频道号（升序，只读）。 */
+    public static List<Integer> channels(ResourceKey<Level> dim) {
+        java.util.TreeSet<Integer> set = new java.util.TreeSet<>();
+        Map<BlockPos, Integer> m = ENTRIES.get(dim);
+        if (m != null) {
+            for (Integer ch : m.values()) {
+                if (ch != null && ch > 0) {
+                    set.add(ch);
+                }
+            }
+        }
+        return new ArrayList<>(set);
+    }
+
     /** 服务端关闭时清空（防止跨存档残留）。 */
     public static void clear() {
         ENTRIES.clear();
