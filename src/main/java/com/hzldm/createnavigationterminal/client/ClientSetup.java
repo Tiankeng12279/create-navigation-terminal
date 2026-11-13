@@ -8,6 +8,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 /**
@@ -30,6 +31,30 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.NAVIGATION_TERMINAL.get(), NavigationTerminalScreen::new);
+    }
+
+
+    /**
+     * 资源重载（F3+T / 换资源包）时清掉 HUD 标记贴图的尺寸与“缺失”缓存。
+     *
+     * <p>没有这一步时，玩家把高清贴图丢进资源包后必须重启游戏才生效。
+     */
+    @SubscribeEvent
+    public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(new net.minecraft.server.packs.resources.SimplePreparableReloadListener<Void>() {
+            @Override
+            protected Void prepare(net.minecraft.server.packs.resources.ResourceManager rm,
+                                   net.minecraft.util.profiling.ProfilerFiller profiler) {
+                return null;
+            }
+
+            @Override
+            protected void apply(Void unused,
+                                 net.minecraft.server.packs.resources.ResourceManager rm,
+                                 net.minecraft.util.profiling.ProfilerFiller profiler) {
+                HudSprites.invalidate();
+            }
+        });
     }
 
     /** 客户端初始化：装了 Ponderer 才安装内置思索场景 */

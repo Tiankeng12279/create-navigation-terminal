@@ -21,6 +21,10 @@ public final class ClientConfig {
     public static final ModConfigSpec.ConfigValue<String> COLOR_MAIN;
     /** HUD 路点绘制上限（0 = 不限） */
     public static final ModConfigSpec.IntValue MAX_RENDERED_WAYPOINTS;
+    /** 是否输出 [Perf] 诊断日志 */
+    public static final ModConfigSpec.BooleanValue ENABLE_PERF_LOG;
+    /** 标记贴图缩放倍率 */
+    public static final ModConfigSpec.DoubleValue MARKER_SCALE;
     /** 次色 RRGGBB */
     public static final ModConfigSpec.ConfigValue<String> COLOR_DIM;
     /** 是否显示调试行 */
@@ -93,6 +97,17 @@ public final class ClientConfig {
         SHOW_ALL_WAYPOINTS = b
                 .comment("Show every Xaero waypoint in the HUD (not just the ones on the route).")
                 .define("showAllWaypoints", true);
+
+        MARKER_SCALE = b
+                .comment("Marker sprite scale (1.0 = default size).",
+                         "贴图见 textures/gui/markers/，可被资源包替换为 64x64 / 128x128 等高清版；",
+                         "高清贴图无需改代码，缩放由本项控制。")
+                .defineInRange("markerScale", 1.0, 0.5, 4.0);
+
+        ENABLE_PERF_LOG = b
+                .comment("Print the periodic [Perf] line to the log (diagnostics only).",
+                         "默认关闭：普通玩家看到这行会以为是故障。")
+                .define("enablePerfLog", false);
 
         MAX_RENDERED_WAYPOINTS = b
                 .comment("HUD 上最多绘制多少个 Xaero 路径点（最近的 N 个，按距离取）",

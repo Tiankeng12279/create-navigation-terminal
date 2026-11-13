@@ -33,6 +33,8 @@ public final class NavigationHudOverlay {
             new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
     /** 路点绘制上限（0 = 不限） */
     private static int MAX_OTHER_WAYPOINTS = 20;
+    /** 标记贴图缩放倍率（markerScale 配置） */
+    private static double MARKER_SCALE = 1.0;
 
     /** 把世界坐标打包成 long，用于去重 */
     private static long keyXZ(double x, double z) {
@@ -82,7 +84,21 @@ public final class NavigationHudOverlay {
      *
      * 兼容：Create 护目镜（头盔槽）、Curios 饰品槽、以及任何 id 含 "goggles" 的物品。
      */
+    /** 护目镜检测结果的缓存（每 500ms 重算一次，避免每帧查背包/Curios 反射） */
+    private static boolean goggleCacheValue = false;
+    private static long goggleCacheUntil = 0L;
+
     private static boolean hasGoggles(net.minecraft.world.entity.player.Player player) {
+        long now = System.currentTimeMillis();
+        if (now < goggleCacheUntil) {
+            return goggleCacheValue;
+        }
+        goggleCacheValue = computeGoggles(player);
+        goggleCacheUntil = now + 500L;
+        return goggleCacheValue;
+    }
+
+    private static boolean computeGoggles(net.minecraft.world.entity.player.Player player) {
         if (player == null) {
             return false;
         }
@@ -139,17 +155,38 @@ public final class NavigationHudOverlay {
     private static long lastWpRefresh = 0L;
 
     /** 该路点是否被隐藏 */
+    /** 隐藏名单的预解析集合（避免每帧 split + trim + equalsIgnoreCase） */
+    private static java.util.Set<String> HIDDEN_SET = java.util.Set.of();
+    private static String hiddenCacheSource = "";
+
+    private static void rebuildHiddenSet(String raw) {
+        if (raw == null) {
+            raw = "";
+        }
+        if (raw.equals(hiddenCacheSource)) {
+            return;
+        }
+        hiddenCacheSource = raw;
+        if (raw.isBlank()) {
+            HIDDEN_SET = java.util.Set.of();
+            return;
+        }
+        java.util.HashSet<String> set = new java.util.HashSet<>();
+        for (String part : raw.split(",")) {
+            String t = part.trim().toLowerCase(java.util.Locale.ROOT);
+            if (!t.isEmpty()) {
+                set.add(t);
+            }
+        }
+        HIDDEN_SET = set;
+    }
+
     private static boolean isWaypointHidden(String name) {
         if (name == null || HIDDEN_WAYPOINTS == null || HIDDEN_WAYPOINTS.isBlank()) {
             return false;
         }
-        for (String s : HIDDEN_WAYPOINTS.split(",")) {
-            String t = s.trim();
-            if (!t.isEmpty() && t.equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-        return false;
+        rebuildHiddenSet(HIDDEN_WAYPOINTS);
+        return HIDDEN_SET.contains(name.toLowerCase(java.util.Locale.ROOT));
     }
 
     /** 供 GUI 查询：当前缓存的路点 */
@@ -560,6 +597,7 @@ public final class NavigationHudOverlay {
                     com.hzldm.createnavigationterminal.config.ClientConfig.SHOW_OTHER_WAYPOINTS.get();
             MAX_OTHER_WAYPOINTS =
                     com.hzldm.createnavigationterminal.config.ClientConfig.MAX_RENDERED_WAYPOINTS.get();
+            MARKER_SCALE = com.hzldm.createnavigationterminal.config.ClientConfig.MARKER_SCALE.get();
             SHOW_ALL_WAYPOINTS =
                     com.hzldm.createnavigationterminal.config.ClientConfig.SHOW_ALL_WAYPOINTS.get();
             HUD_OTHER = 0xFF000000 | parseColor(
@@ -683,6 +721,18 @@ public final class NavigationHudOverlay {
         }
     }
 
+    /** 贴图不可用时的准星画法（原 fill 实现，保证行为不变） */
+    private static void drawCrosshairFallback(GuiGraphics g, int cx, int cy, int cs) {
+        int outer = cs + Math.max(4, cs / 2);
+        int inner = cs + 2;
+        g.fill(cx - cs, cy, cx + cs + 1, cy + 1, HUD_GREEN);
+        g.fill(cx, cy - cs, cx + 1, cy + cs + 1, HUD_GREEN);
+        g.fill(cx - outer, cy, cx - inner, cy + 1, HUD_DIM);
+        g.fill(cx + inner + 1, cy, cx + outer + 1, cy + 1, HUD_DIM);
+        g.fill(cx, cy - outer, cx + 1, cy - inner, HUD_DIM);
+        g.fill(cx, cy + inner + 1, cx + 1, cy + outer + 1, HUD_DIM);
+    }
+
     private static void drawHud(RenderGuiEvent.Post event) {
         NavigationHudPayload data = current;
         if (data == null) {
@@ -709,14 +759,9 @@ public final class NavigationHudOverlay {
 
         // ---------------- 中央准星 ----------------
         int cs = Math.max(3, CROSSHAIR_SIZE);
-        int outer = cs + Math.max(4, cs / 2);
-        int inner = cs + 2;
-        g.fill(cx - cs, cy, cx + cs + 1, cy + 1, HUD_GREEN);
-        g.fill(cx, cy - cs, cx + 1, cy + cs + 1, HUD_GREEN);
-        g.fill(cx - outer, cy, cx - inner, cy + 1, HUD_DIM);
-        g.fill(cx + inner + 1, cy, cx + outer + 1, cy + 1, HUD_DIM);
-        g.fill(cx, cy - outer, cx + 1, cy - inner, HUD_DIM);
-        g.fill(cx, cy + inner + 1, cx + 1, cy + outer + 1, HUD_DIM);
+        if (!HudSprites.drawCentered(g, HudSprites.CROSSHAIR, cx, cy, cs * 2 + 8, HUD_GREEN)) {
+            drawCrosshairFallback(g, cx, cy, cs);
+        }
 
         // ---------------- 顶部航向刻度 ----------------
         drawHeadingTape(g, mc, cx, h, data);
@@ -1425,10 +1470,13 @@ public final class NavigationHudOverlay {
         }
         int rowY = rowY0 + lane * MARKER_LANE_H;
         int s = 4;
-        g.fill(px - s, rowY - s, px + s + 1, rowY - s + 1, color);
-        g.fill(px - s, rowY + s, px + s + 1, rowY + s + 1, color);
-        g.fill(px - s, rowY - s, px - s + 1, rowY + s + 1, color);
-        g.fill(px + s, rowY - s, px + s + 1, rowY + s + 1, color);
+        int otherPx = (int) Math.round((s * 2 + 8) * MARKER_SCALE);
+        if (!HudSprites.drawCentered(g, HudSprites.OTHER, px, rowY, otherPx, color)) {
+            g.fill(px - s, rowY - s, px + s + 1, rowY - s + 1, color);
+            g.fill(px - s, rowY + s, px + s + 1, rowY + s + 1, color);
+            g.fill(px - s, rowY - s, px - s + 1, rowY + s + 1, color);
+            g.fill(px + s, rowY - s, px + s + 1, rowY + s + 1, color);
+        }
 
         g.drawCenteredString(mc.font, label, px, rowY + s + 2, color);
         return Math.abs(rel);
@@ -1479,6 +1527,12 @@ public final class NavigationHudOverlay {
     /** 目标标记：按 markerStyle 选形状，贴边时加箭头 */
     private static void drawTargetMarker(GuiGraphics g, Minecraft mc, int x, int y,
                                          int relDeg, int color, boolean edge) {
+        // 贴图优先（资源包可覆盖）；不可用时回落到下面的 fill 图元
+        int markerPx = (int) Math.round(20 * MARKER_SCALE);
+        if (HudSprites.drawCentered(g, HudSprites.forStyle(MARKER_STYLE), x, y, markerPx, color)) {
+            drawTargetMarkerEdge(g, relDeg, x, y, color, edge);
+            return;
+        }
         switch (MARKER_STYLE == null ? "box" : MARKER_STYLE.toLowerCase()) {
             case "diamond" -> drawDiamond(g, x, y, color);
             case "cross" -> drawCross(g, x, y, color);
@@ -1497,6 +1551,21 @@ public final class NavigationHudOverlay {
                 int x1 = pointRight ? ax + i + 1 : ax + 6 - i;
                 g.fill(x0, y - 5 + i, x1, y + 6 - i, color);
             }
+        }
+    }
+
+    /** 目标出屏时的贴边箭头（贴图路径复用，避免重复代码） */
+    private static void drawTargetMarkerEdge(GuiGraphics g, int relDeg, int x, int y,
+                                            int color, boolean edge) {
+        if (!edge) {
+            return;
+        }
+        boolean pointRight = relDeg > 0;
+        int ax = pointRight ? x + 14 : x - 18;
+        for (int i = 0; i < 6; i++) {
+            int x0 = pointRight ? ax + i : ax + 5 - i;
+            int x1 = pointRight ? ax + i + 1 : ax + 6 - i;
+            g.fill(x0, y - 5 + i, x1, y + 6 - i, color);
         }
     }
 

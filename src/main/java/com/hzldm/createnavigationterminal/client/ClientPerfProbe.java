@@ -64,11 +64,23 @@ public final class ClientPerfProbe {
         if (gs == 0 && gd == 0 && gsh == 0 && wp == 0 && hf == 0 && fps >= LOW_FPS) {
             return;
         }
+        if (!perfLogEnabled()) {
+            return;
+        }
         logged++;
         String fpsText = fps > 0 ? String.valueOf(fps) : "?";
         double hudMs = hf > 0 ? (hn / 1.0e6) / hf : 0.0;
         CreateNavigationTerminal.LOGGER.info(
                 "[Perf] fps≈{} hud={}ms/帧({}帧) getSignal={}/5s getDirectSignal={} getShape={} weakPower={}",
                 fpsText, String.format("%.2f", hudMs), hf, gs, gd, gsh, wp);
+    }
+
+    /** 配置开关（读不到时默认关闭，避免刷屏） */
+    private static boolean perfLogEnabled() {
+        try {
+            return com.hzldm.createnavigationterminal.config.ClientConfig.ENABLE_PERF_LOG.get();
+        } catch (Throwable t) {
+            return false;
+        }
     }
 }
