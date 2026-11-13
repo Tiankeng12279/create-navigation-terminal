@@ -91,17 +91,24 @@ public final class HudSprites {
         }
     }
 
-    /** 按 markerStyle 选目标标记贴图；未知样式返回 box */
+    /**
+     * 按 markerStyle 选目标标记贴图。
+     *
+     * <p>样式名不区分大小写（配置里常见 {@code "Box"}）。没有对应贴图的样式
+     * （例如 {@code chevron}）返回 {@code null}，调用方据此回落到 {@code fill()} 画法，
+     * 而不是硬塞成 box。
+     */
     public static ResourceLocation forStyle(String style) {
-        if (style == null) {
+        if (style == null || style.isBlank()) {
             return TARGET_BOX;
         }
-        return switch (style) {
+        return switch (style.trim().toLowerCase(java.util.Locale.ROOT)) {
             case "diamond" -> TARGET_DIAMOND;
             case "cross" -> TARGET_CROSS;
             case "bracket" -> TARGET_BRACKET;
             case "dot" -> TARGET_DOT;
-            default -> TARGET_BOX;
+            case "box" -> TARGET_BOX;
+            default -> null;      // chevron 等：交给原来的图元绘制
         };
     }
 

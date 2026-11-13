@@ -417,6 +417,12 @@ public final class NavigationHudOverlay {
 
     public static void setMarkerStyle(String v) {
         MARKER_STYLE = v;
+        // 立即写回配置：否则 reloadConfig() 每 500ms 会用旧值覆盖回来（F9 里改样式会“没反应”）
+        try {
+            com.hzldm.createnavigationterminal.config.ClientConfig.MARKER_STYLE.set(v);
+        } catch (Throwable ignored) {
+            // 配置未加载时忽略
+        }
     }
 
     public static boolean isShowRadar() {
