@@ -28,7 +28,16 @@ public final class NavigationHudOverlay {
     private static double REL_OFFSET_DEG = 0.0;
 
     /** 本帧已绘制的标记坐标（"x,z"），各绘制方法共享去重，避免同一位置画两遍 */
-    private static final java.util.Set<String> DRAWN_KEYS = new java.util.HashSet<>();
+    /** 本帧已画过的坐标（long 打包 x/z，避免每帧拼 String） */
+    private static final it.unimi.dsi.fastutil.longs.LongOpenHashSet DRAWN_KEYS =
+            new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
+    /** 路点绘制上限（0 = 不限） */
+    private static int MAX_OTHER_WAYPOINTS = 20;
+
+    /** 把世界坐标打包成 long，用于去重 */
+    private static long keyXZ(double x, double z) {
+        return ((long) (int) Math.floor(x) << 32) ^ ((int) Math.floor(z) & 0xFFFFFFFFL);
+    }
     /** 水平映射半视角（度）：标记贴边阈值 */
     private static double FOV_HALF = 100.0;
     private static int TAPE_Y = 46;
@@ -549,6 +558,8 @@ public final class NavigationHudOverlay {
                     com.hzldm.createnavigationterminal.config.ClientConfig.SHOW_SPATIAL_MARKER.get();
             SHOW_OTHER_WAYPOINTS =
                     com.hzldm.createnavigationterminal.config.ClientConfig.SHOW_OTHER_WAYPOINTS.get();
+            MAX_OTHER_WAYPOINTS =
+                    com.hzldm.createnavigationterminal.config.ClientConfig.MAX_RENDERED_WAYPOINTS.get();
             SHOW_ALL_WAYPOINTS =
                     com.hzldm.createnavigationterminal.config.ClientConfig.SHOW_ALL_WAYPOINTS.get();
             HUD_OTHER = 0xFF000000 | parseColor(
@@ -657,7 +668,7 @@ public final class NavigationHudOverlay {
         cachedWaypoints = java.util.List.of();
         lastWpRefresh = 0L;
         DRAWN_KEYS.clear();
-        MARKER_SLOTS.clear();
+        clearMarkerSlots();
         DIST_LABEL_CACHE.clear();
     }
 
@@ -1037,10 +1048,38 @@ public final class NavigationHudOverlay {
         lastWpRefresh = now;
         try {
             com.hzldm.createnavigationterminal.integration.xaero.XaeroWaypointService
-                    .listWaypointsOnClient(list -> cachedWaypoints = list);
+                    .listWaypointsOnClient(NavigationHudOverlay::acceptWaypoints);
         } catch (Throwable ignored) {
             // Xaero 不可用时保持空列表
         }
+    }
+
+    /**
+     * 收下 Xaero 路点：按到玩家的距离排序，并截断到配置上限。
+     *
+     * <p>排序与截断只在缓存刷新时做（2 秒一次），绘制循环因此恒定为 O(上限)，
+     * 不再随存档路点数量增长。
+     */
+    private static void acceptWaypoints(java.util.List<com.hzldm.createnavigationterminal.integration.xaero.XaeroReflect.RawWp> list) {
+        if (list == null || list.isEmpty()) {
+            cachedWaypoints = java.util.List.of();
+            return;
+        }
+        int cap = MAX_OTHER_WAYPOINTS;
+        Minecraft mc = Minecraft.getInstance();
+        if (cap <= 0 || mc.player == null || list.size() <= cap) {
+            cachedWaypoints = list;
+            return;
+        }
+        double px = mc.player.getX();
+        double pz = mc.player.getZ();
+        java.util.ArrayList<com.hzldm.createnavigationterminal.integration.xaero.XaeroReflect.RawWp> copy =
+                new java.util.ArrayList<>(list);
+        copy.sort(java.util.Comparator.comparingDouble(wp -> {
+            double dx = wp.x() - px, dz = wp.z() - pz;
+            return dx * dx + dz * dz;
+        }));
+        cachedWaypoints = java.util.List.copyOf(copy.subList(0, cap));
     }
 
     /**
@@ -1077,7 +1116,7 @@ public final class NavigationHudOverlay {
                 continue;
             }
             // 同一位置已经画过别的标记就跳过，避免文字叠字
-            if (!DRAWN_KEYS.add(f[0] + "," + f[2])) {
+            if (!DRAWN_KEYS.add(keyXZ(f[0], f[2]))) {
                 continue;
             }
             double tYaw = Math.toDegrees(Math.atan2(-dx, dz));
@@ -1149,7 +1188,7 @@ public final class NavigationHudOverlay {
                 continue;
             }
             // 同一位置已经画过别的标记就跳过，避免文字叠字
-            if (!DRAWN_KEYS.add(b[0] + "," + b[2])) {
+            if (!DRAWN_KEYS.add(keyXZ(b[0], b[2]))) {
                 continue;
             }
             double tYaw = Math.toDegrees(Math.atan2(-dx, dz));
@@ -1246,9 +1285,9 @@ public final class NavigationHudOverlay {
                                            int curTargetX, int curTargetZ) {
         NavigationHudPayload data = current;
         int rowY0 = cy + MARKER_Y_OFFSET - 30;
-        java.util.Set<String> drawn = DRAWN_KEYS;
+        it.unimi.dsi.fastutil.longs.LongOpenHashSet drawn = DRAWN_KEYS;
         drawn.clear();
-        MARKER_SLOTS.clear();   // 每帧重置车道占用
+        clearMarkerSlots();   // 每帧重置车道占用
 
         // 1) 航线站点优先画。
         //
@@ -1287,8 +1326,7 @@ public final class NavigationHudOverlay {
                 if (!isNext && !SHOW_OTHER_WAYPOINTS) {
                     continue;
                 }
-                String key = pt[0] + "," + pt[2];
-                if (!drawn.add(key)) {
+                if (!drawn.add(keyXZ(pt[0], pt[2]))) {
                     continue;
                 }
                 drawOneWaypoint(g, mc, cx, w, heading, camX, camZ, rowY0,
@@ -1308,8 +1346,7 @@ public final class NavigationHudOverlay {
                 if (Math.abs(wp.x() - curTargetX) <= 2 && Math.abs(wp.z() - curTargetZ) <= 2) {
                     continue;
                 }
-                String key = wp.x() + "," + wp.z();
-                if (!drawn.add(key)) {
+                if (!drawn.add(keyXZ(wp.x(), wp.z()))) {
                     continue;
                 }
                 double absRel = drawOneWaypoint(g, mc, cx, w, heading, camX, camZ, rowY0,
@@ -1401,8 +1438,15 @@ public final class NavigationHudOverlay {
     private static final int MARKER_LANE_H = 13;
     /** 同一帧内最多叠几层，超过就不画（避免糊成一片） */
     private static final int MARKER_LANES = 4;
-    /** 每帧的占用记录：{lane, left, right} */
-    private static final java.util.List<int[]> MARKER_SLOTS = new java.util.ArrayList<>();
+    /** 每帧的占用记录：预分配数组，避免每帧 new int[] */
+    private static final int[] SLOT_LANE = new int[64];
+    private static final int[] SLOT_LEFT = new int[64];
+    private static final int[] SLOT_RIGHT = new int[64];
+    private static int slotCount = 0;
+
+    private static void clearMarkerSlots() {
+        slotCount = 0;
+    }
 
     /** 找一个不与已占用区间重叠的车道；找不到返回 -1 */
     private static int pickMarkerLane(int px, int halfW) {
@@ -1410,17 +1454,22 @@ public final class NavigationHudOverlay {
         int right = px + halfW;
         for (int lane = 0; lane < MARKER_LANES; lane++) {
             boolean free = true;
-            for (int[] slot : MARKER_SLOTS) {
-                if (slot[0] != lane) {
+            for (int i = 0; i < slotCount; i++) {
+                if (SLOT_LANE[i] != lane) {
                     continue;
                 }
-                if (right >= slot[1] && left <= slot[2]) {
+                if (right >= SLOT_LEFT[i] && left <= SLOT_RIGHT[i]) {
                     free = false;
                     break;
                 }
             }
             if (free) {
-                MARKER_SLOTS.add(new int[]{lane, left, right});
+                if (slotCount < SLOT_LANE.length) {
+                    SLOT_LANE[slotCount] = lane;
+                    SLOT_LEFT[slotCount] = left;
+                    SLOT_RIGHT[slotCount] = right;
+                    slotCount++;
+                }
                 return lane;
             }
         }

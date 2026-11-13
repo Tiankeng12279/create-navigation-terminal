@@ -19,6 +19,8 @@ public final class ClientConfig {
     public static final ModConfigSpec.DoubleValue FOV_HALF_DEG;
     /** 主色 RRGGBB */
     public static final ModConfigSpec.ConfigValue<String> COLOR_MAIN;
+    /** HUD 路点绘制上限（0 = 不限） */
+    public static final ModConfigSpec.IntValue MAX_RENDERED_WAYPOINTS;
     /** 次色 RRGGBB */
     public static final ModConfigSpec.ConfigValue<String> COLOR_DIM;
     /** 是否显示调试行 */
@@ -91,6 +93,11 @@ public final class ClientConfig {
         SHOW_ALL_WAYPOINTS = b
                 .comment("Show every Xaero waypoint in the HUD (not just the ones on the route).")
                 .define("showAllWaypoints", true);
+
+        MAX_RENDERED_WAYPOINTS = b
+                .comment("HUD 上最多绘制多少个 Xaero 路径点（最近的 N 个，按距离取）",
+                         "上限越少，路点很多时越省；0 表示不限制")
+                .defineInRange("maxRenderedWaypoints", 20, 0, 512);
 
         COLOR_OTHER = b
                 .comment("Color for other waypoints, RRGGBB hex without '#'.")
