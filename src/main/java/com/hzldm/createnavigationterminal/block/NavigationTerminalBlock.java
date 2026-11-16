@@ -382,6 +382,10 @@ public class NavigationTerminalBlock extends Block
                 && level.getBlockEntity(pos) instanceof NavigationTerminalBlockEntity terminal
                 && player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(terminal, buf -> buf.writeBlockPos(pos));
+            // 卡槽内容不同步到客户端，打开界面时告知是否为货运清单模式
+            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer,
+                    new com.hzldm.createnavigationterminal.network.FreightModePayload(
+                            terminal.hasFreightManifest()));
         }
         return InteractionResult.CONSUME;
     }

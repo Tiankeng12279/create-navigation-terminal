@@ -91,7 +91,10 @@ public final class ModPayloads {
                         ModPayloads::handleSetPid)
                 // S2C：导航 HUD（必须在服务端也注册，否则握手失败）
                 .playToClient(NavigationHudPayload.TYPE, NavigationHudPayload.STREAM_CODEC,
-                        ModPayloads::handleHud);
+                        ModPayloads::handleHud)
+                // S2C：终端卡槽里是否放了货运清单
+                .playToClient(FreightModePayload.TYPE, FreightModePayload.STREAM_CODEC,
+                        ModPayloads::handleFreightMode);
         // 卡片名字 / 只读标记（同一 registrar 里续注册）
         event.registrar("1")
                 .playToServer(SetCardSettingsPayload.TYPE, SetCardSettingsPayload.STREAM_CODEC,
@@ -386,6 +389,12 @@ public final class ModPayloads {
     }
 
     /** 航线编辑：上一站 / 下一站 / 删除当前站 */
+    private static void handleFreightMode(FreightModePayload payload, IPayloadContext context) {
+        context.enqueueWork(() ->
+                com.hzldm.createnavigationterminal.client.NavigationHudOverlay
+                        .setFreightManifestMode(payload.enabled()));
+    }
+
     private static void handleRouteEdit(RouteEditPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             NavigationTerminalBlockEntity terminal = resolveTerminal(payload.pos(), context);

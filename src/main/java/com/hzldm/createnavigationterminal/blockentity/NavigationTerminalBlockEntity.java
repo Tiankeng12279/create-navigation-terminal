@@ -423,6 +423,12 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
     }
 
     /** 槽里是否有路径点卡 */
+    /** 卡槽里是否放入了 AeroFreight 的货运清单（只读判定，不改槽内物品） */
+    public boolean hasFreightManifest() {
+        return com.hzldm.createnavigationterminal.integration.aerofreight.FreightWaypoints
+                .isManifest(cardSlot.getItem(0));
+    }
+
     public boolean hasCardInSlot() {
         return !cardSlot.getItem(0).isEmpty();
     }

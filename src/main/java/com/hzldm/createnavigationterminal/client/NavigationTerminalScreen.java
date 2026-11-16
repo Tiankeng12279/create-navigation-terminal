@@ -139,6 +139,8 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
     private int currentPage = 0;
     private List<WpTarget> candidates = List.of();
     private boolean xaeroLoaded = false;
+    /** 手持/卡槽里放了 AeroFreight 的货运清单：候选列表切换为货运点 */
+    private boolean freightMode = false;
     /** 鼠标在 GUI 内的坐标（悬停高亮用） */
     private int hoverGuiX = -1;
     private int hoverGuiY = -1;
@@ -578,7 +580,10 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
         this.chromeButtons.add(chUp);
 
         // ---- 候选路点：卡上的 + Xaero 的 ----
-        List<WpTarget> cardPts = this.readCardPoints();
+        this.freightMode = NavigationHudOverlay.isFreightManifestMode()
+                || com.hzldm.createnavigationterminal.integration.aerofreight.FreightWaypoints
+                        .isManifest(this.minecraft == null ? null : this.minecraft.player.getMainHandItem());
+        List<WpTarget> cardPts = this.freightMode ? List.of() : this.readCardPoints();
         this.candidates = cardPts;
         this.xaeroLoaded = false;
         this.scroll = 0;
@@ -596,7 +601,19 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
             ArrayList<WpTarget> merged = new ArrayList<>(cardPts);
             String dim = this.currentDim();
             for (XaeroReflect.RawWp wp : list) {
-                merged.add(new WpTarget(wp.name(), wp.x(), wp.y(), wp.z(), dim));
+                if (this.freightMode) {
+                    // 货运清单模式：只列 AeroFreight 发布的站点与订单
+                    if (!com.hzldm.createnavigationterminal.integration.aerofreight
+                            .FreightWaypoints.isFreightName(wp.name())) {
+                        continue;
+                    }
+                    merged.add(new WpTarget(
+                            com.hzldm.createnavigationterminal.integration.aerofreight
+                                    .FreightWaypoints.label(wp.name()),
+                            wp.x(), wp.y(), wp.z(), dim));
+                } else {
+                    merged.add(new WpTarget(wp.name(), wp.x(), wp.y(), wp.z(), dim));
+                }
             }
             this.candidates = merged;
             this.xaeroLoaded = true;

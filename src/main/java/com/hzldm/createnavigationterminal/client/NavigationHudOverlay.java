@@ -201,6 +201,14 @@ public final class NavigationHudOverlay {
     }
 
     /** 供按键使用：当前 HUD 数据 */
+    public static void setFreightManifestMode(boolean v) {
+        freightManifestMode = v;
+    }
+
+    public static boolean isFreightManifestMode() {
+        return freightManifestMode;
+    }
+
     public static NavigationHudPayload getCurrent() {
         return current;
     }
@@ -653,6 +661,8 @@ public final class NavigationHudOverlay {
 
     /** 客户端缓存的最新 HUD 数据（null = 无） */
     private static volatile NavigationHudPayload current = null;
+    /** 终端卡槽里是否放了 AeroFreight 货运清单（由服务端告知） */
+    private static volatile boolean freightManifestMode = false;
 
     /** 世界渲染阶段缓存下来的真实投影矩阵（GUI 阶段拿不到） */
     private static volatile org.joml.Matrix4f cachedProjection = null;
