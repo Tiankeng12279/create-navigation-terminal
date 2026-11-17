@@ -33,6 +33,8 @@ public final class NavigationHudOverlay {
             new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
     /** 路点绘制上限（0 = 不限） */
     private static int MAX_OTHER_WAYPOINTS = 20;
+    /** 货运清单目的地颜色 */
+    private static int HUD_FREIGHT = 0xFFFFB300;
     /** 标记贴图缩放倍率（markerScale 配置） */
     private static double MARKER_SCALE = 1.0;
 
@@ -634,6 +636,8 @@ public final class NavigationHudOverlay {
             MAX_OTHER_WAYPOINTS =
                     com.hzldm.createnavigationterminal.config.ClientConfig.MAX_RENDERED_WAYPOINTS.get();
             MARKER_SCALE = com.hzldm.createnavigationterminal.config.ClientConfig.MARKER_SCALE.get();
+            HUD_FREIGHT = 0xFF000000 | parseColor(
+                    com.hzldm.createnavigationterminal.config.ClientConfig.COLOR_FREIGHT.get(), 0xFFB300);
             SHOW_ALL_WAYPOINTS =
                     com.hzldm.createnavigationterminal.config.ClientConfig.SHOW_ALL_WAYPOINTS.get();
             HUD_OTHER = 0xFF000000 | parseColor(
@@ -833,6 +837,8 @@ public final class NavigationHudOverlay {
                     // 用玩家视角
                 }
                 drawOtherWaypoints(g, mc, cx, cy, w, hd, cxp, czp, 0, 0);
+                drawFreightMarkers(g, mc, cx, w, hd, cxp, czp,
+                        cy + MARKER_Y_OFFSET - 30);
                 drawFleetMarkers(g, mc, cx, cy, w, hd, cxp, czp);
                 drawBeacons(g, mc, cx, cy, w, hd, cxp, czp);
             }
@@ -1006,6 +1012,7 @@ public final class NavigationHudOverlay {
                         data.targetX(), data.targetZ());
             }
             // 编队：附近的其他载具
+            drawFreightMarkers(g, mc, cx, w, heading, camX, camZ, cy + MARKER_Y_OFFSET - 30);
             drawFleetMarkers(g, mc, cx, cy, w, heading, camX, camZ);
             // 信标：只有铭牌、没有导航终端
             drawBeacons(g, mc, cx, cy, w, heading, camX, camZ);
@@ -1175,6 +1182,24 @@ public final class NavigationHudOverlay {
      * 这样能覆盖「命名过的友机」和「其他玩家驾驶的载具」，
      * 又不会把普通怪物刷满屏幕。
      */
+    /**
+     * 货运清单目的地：用单独的货箱图标与颜色绘制，与普通路点区分。
+     *
+     * <p>数据来自服务端下发的 AeroFreight 进行中订单（{@link #getFreightOrders()}）。
+     */
+    private static void drawFreightMarkers(GuiGraphics g, Minecraft mc,
+                                           int cx, int w, float heading,
+                                           double camX, double camZ, int rowY0) {
+        java.util.List<com.hzldm.createnavigationterminal.item.WpTarget> orders = getFreightOrders();
+        if (orders == null || orders.isEmpty()) {
+            return;
+        }
+        for (var t : orders) {
+            drawOneWaypoint(g, mc, cx, w, heading, camX, camZ, rowY0,
+                    t.x(), t.z(), HUD_FREIGHT, "", HudSprites.FREIGHT);
+        }
+    }
+
     private static void drawFleetMarkers(GuiGraphics g, Minecraft mc,
                                          int cx, int cy, int w,
                                          float heading, double camX, double camZ) {
@@ -1483,6 +1508,16 @@ public final class NavigationHudOverlay {
                                           int cx, int w, float heading,
                                           double camX, double camZ, int rowY0,
                                           int wx, int wz, int color, String prefix) {
+        return drawOneWaypoint(g, mc, cx, w, heading, camX, camZ, rowY0, wx, wz, color, prefix,
+                HudSprites.OTHER);
+    }
+
+    /** 同 {@link #drawOneWaypoint} ，但可指定标记贴图（例如货运专用图标） */
+    private static double drawOneWaypoint(GuiGraphics g, Minecraft mc,
+                                          int cx, int w, float heading,
+                                          double camX, double camZ, int rowY0,
+                                          int wx, int wz, int color, String prefix,
+                                          net.minecraft.resources.ResourceLocation sprite) {
         double dx = wx - camX;
         double dz = wz - camZ;
         double dist = Math.sqrt(dx * dx + dz * dz);
@@ -1512,7 +1547,7 @@ public final class NavigationHudOverlay {
         int rowY = rowY0 + lane * MARKER_LANE_H;
         int s = 4;
         int otherPx = (int) Math.round((s * 2 + 8) * MARKER_SCALE);
-        if (!HudSprites.drawCentered(g, HudSprites.OTHER, px, rowY, otherPx, color)) {
+        if (!HudSprites.drawCentered(g, sprite, px, rowY, otherPx, color)) {
             g.fill(px - s, rowY - s, px + s + 1, rowY - s + 1, color);
             g.fill(px - s, rowY + s, px + s + 1, rowY + s + 1, color);
             g.fill(px - s, rowY - s, px - s + 1, rowY + s + 1, color);

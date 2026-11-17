@@ -38,6 +38,8 @@ public final class HudSprites {
     public static final ResourceLocation FLEET = id("fleet");
     public static final ResourceLocation BEACON = id("beacon");
     public static final ResourceLocation OTHER = id("other");
+    /** 货运清单（AeroFreight 订单目的地）专用标记 */
+    public static final ResourceLocation FREIGHT = id("freight");
 
     /** 加载失败过的贴图，避免每帧重试抛异常 */
     private static final Set<ResourceLocation> MISSING = new HashSet<>();

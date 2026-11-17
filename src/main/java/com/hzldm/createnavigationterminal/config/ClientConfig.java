@@ -25,6 +25,8 @@ public final class ClientConfig {
     public static final ModConfigSpec.BooleanValue ENABLE_PERF_LOG;
     /** 标记贴图缩放倍率 */
     public static final ModConfigSpec.DoubleValue MARKER_SCALE;
+    /** 货运清单目的地的颜色 */
+    public static final ModConfigSpec.ConfigValue<String> COLOR_FREIGHT;
     /** 次色 RRGGBB */
     public static final ModConfigSpec.ConfigValue<String> COLOR_DIM;
     /** 是否显示调试行 */
@@ -97,6 +99,10 @@ public final class ClientConfig {
         SHOW_ALL_WAYPOINTS = b
                 .comment("Show every Xaero waypoint in the HUD (not just the ones on the route).")
                 .define("showAllWaypoints", true);
+
+        COLOR_FREIGHT = b
+                .comment("Color for AeroFreight manifest destinations, RRGGBB hex without '#'.")
+                .define("colorFreight", "FFB300");
 
         MARKER_SCALE = b
                 .comment("Marker sprite scale (1.0 = default size).",
