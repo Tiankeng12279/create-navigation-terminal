@@ -55,7 +55,10 @@ public class NavigationTerminalMenu extends AbstractContainerMenu {
         return new Slot(container, 0, CARD_SLOT_X, CARD_SLOT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.getItem() instanceof WaypointCardItem;
+                // 导航点卡（导出/导入航线）；AeroFreight 货运清单也允许放入，终端会读取其订单
+                return stack.getItem() instanceof WaypointCardItem
+                        || com.hzldm.createnavigationterminal.integration.aerofreight
+                                .FreightWaypoints.isManifest(stack);
             }
         };
     }

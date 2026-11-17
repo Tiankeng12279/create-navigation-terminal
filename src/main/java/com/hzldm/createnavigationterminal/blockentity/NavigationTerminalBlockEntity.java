@@ -163,8 +163,14 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
 
                 @Override
                 public boolean canPlaceItem(int slot, net.minecraft.world.item.ItemStack stack) {
-                    return stack.getItem() instanceof
-                            com.hzldm.createnavigationterminal.item.WaypointCardItem;
+                    // 导航点卡：导出/导入航线
+                    if (stack.getItem() instanceof
+                            com.hzldm.createnavigationterminal.item.WaypointCardItem) {
+                        return true;
+                    }
+                    // AeroFreight 货运清单：允许放入，终端据此读取该玩家的进行中订单
+                    return com.hzldm.createnavigationterminal.integration.aerofreight
+                            .FreightWaypoints.isManifest(stack);
                 }
             };
 
@@ -192,6 +198,11 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
         net.minecraft.world.item.ItemStack stack = cardSlot.getItem(0);
         if (stack.isEmpty() || !(stack.getItem()
                 instanceof com.hzldm.createnavigationterminal.item.WaypointCardItem)) {
+            // 空槽或非导航点卡（例如 AeroFreight 货运清单）：不导出/导入，仅同步方块状态，
+            // 让打开界面的玩家能收到最新的「货运清单模式」。
+            if (!stack.isEmpty()) {
+                syncNow();
+            }
             setChanged();
             return;
         }
