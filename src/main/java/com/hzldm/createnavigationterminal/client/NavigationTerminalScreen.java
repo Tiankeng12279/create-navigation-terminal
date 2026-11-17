@@ -162,6 +162,8 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
     /** 卡片「改名」与「只读」按钮 */
     private NavButton renameBtn;
     private NavButton readOnlyBtn;
+    /** 到达后模式滑杆（左=自动，右=手动确认） */
+    private AdvanceModeSlider advanceSlider;
     private int menuIdx = -1;
     private int menuX;
     private int menuY;
@@ -374,18 +376,23 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
                 Component.literal("只读：不允许把当前航线写入这张卡")));
         this.addRenderableWidget(this.readOnlyBtn);
 
-        // ---- 到达后手动确认：左侧图标列下方的滑块开关 ----
-        ToggleSwitch advanceSwitch = new ToggleSwitch(
-                cx + 6, this.topPos + 154, this.localAction == 3,
-                "到达后手动确认（按 R 前进）",
-                v -> {
-                    int next = v ? 3 : 1;
+        // ---- 到达后：自动 / 手动确认（原版滑杆，放在调序箭头下方）----
+        this.advanceSlider = new AdvanceModeSlider(
+                cx + 256, this.topPos + 254, 74, 16, this.localAction == 3,
+                manual -> {
+                    int next = manual ? 3 : 1;
+                    if (next == this.localAction) {
+                        return;
+                    }
                     PacketDistributor.sendToServer(new SetNavigationSettingsPayload(
                             this.pos(), this.localMode, this.localPower, this.localRange,
                             this.localRadius, next, this.localDecel, this.localSteerScale));
                     this.localAction = next;
                 });
-        this.addRenderableWidget(advanceSwitch);
+        this.advanceSlider.setTooltip(net.minecraft.client.gui.components.Tooltip.create(
+                Component.literal("左：到达即切下一站；"
+                        + "右：到达后按 R 才前进")));
+        this.addRenderableWidget(this.advanceSlider);
 
         // ---- 右侧按钮组 1：航线操作 ----
         // 循环/单程：文字随当前状态变，点一下切一次并重建控件

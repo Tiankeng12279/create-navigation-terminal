@@ -27,6 +27,16 @@ public final class NavIcons {
         g.fill(x + w - 2, y + h - 2, x + w - 1, y + h - 1, c);
     }
 
+    /** 指向右的箭头 + 停止档：到达后手动确认（前进到下一站） */
+    public static void advance(GuiGraphics g, int x, int y, int c) {
+        int cy = y + SIZE / 2 - 1;
+        g.fill(x + 2, cy, x + 8, cy + 2, c);          // 箭杆
+        g.fill(x + 7, cy - 2, x + 9, cy + 4, c);      // 箭头底
+        g.fill(x + 9, cy - 1, x + 11, cy + 3, c);
+        g.fill(x + 11, cy, x + 12, cy + 2, c);
+        g.fill(x + 13, y + 3, x + 15, y + SIZE - 3, c); // 终点档
+    }
+
     /** 三横杠（设置 / 菜单）：只画横杠，不带外框（外框由按钮本身提供） */
     public static void menu(GuiGraphics g, int x, int y, int c) {
         int bx = x + 2;
