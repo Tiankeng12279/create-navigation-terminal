@@ -35,27 +35,37 @@ public class ToggleSwitch extends AbstractWidget {
         this.on = v;
     }
 
+    /** 与左侧图标按钮同一套观感：黑框 + 灰底 + 黑字形 */
+    private static final int FRAME = 0xFF1C1C1C;
+    private static final int FACE = 0xFF9C9C9C;
+    private static final int FACE_HOVER = 0xFFB6B6B6;
+
     @Override
     protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        int x = getX();
+        int y = getY();
+        int w = getWidth();
+        int h = getHeight();
         boolean hover = this.isHoveredOrFocused();
-        // 背景槽
-        g.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), NavGuiStyle.INNER);
-        // 轨道
-        int trackX = getX() + 3;
-        int trackY = getY() + 5;
-        int trackW = getWidth() - 6;
-        g.fill(trackX, trackY, trackX + trackW, trackY + 6,
-                on ? NavGuiStyle.ACCENT : NavGuiStyle.PANEL);
-        // 旋钮
-        int knobW = 6;
-        int knobX = trackX + (on ? trackW - knobW : 0);
-        int knobColor = hover ? NavGuiStyle.TEXT : NavGuiStyle.MUTED;
-        g.fill(knobX, trackY - 2, knobX + knobW, trackY + 8, knobColor);
-        // 边框
-        g.fill(getX(), getY(), getX() + getWidth(), getY() + 1, NavGuiStyle.PANEL);
-        g.fill(getX(), getY() + getHeight() - 1, getX() + getWidth(), getY() + getHeight(), NavGuiStyle.PANEL);
-        g.fill(getX(), getY(), getX() + 1, getY() + getHeight(), NavGuiStyle.PANEL);
-        g.fill(getX() + getWidth() - 1, getY(), getX() + getWidth(), getY() + getHeight(), NavGuiStyle.PANEL);
+
+        // 外框（黑） + 内面（灰），与上面几个图标按钮一致
+        g.fill(x, y, x + w, y + h, FRAME);
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, hover ? FACE_HOVER : FACE);
+
+        // 字形：轨道 + 旋钮，全部用黑色，尺寸按 18×16 排版
+        int trackX = x + 3;
+        int trackY = y + 7;
+        int trackW = w - 6;          // 12
+        g.fill(trackX, trackY, trackX + trackW, trackY + 2, FRAME);   // 轨道底线
+        g.fill(trackX, trackY - 1, trackX + 1, trackY + 3, FRAME);    // 左端档
+        g.fill(trackX + trackW - 1, trackY - 1, trackX + trackW, trackY + 3, FRAME); // 右端档
+        int knobW = 5;
+        int knobX = on ? trackX + trackW - knobW : trackX;
+        g.fill(knobX, trackY - 3, knobX + knobW, trackY + 5, FRAME);  // 旋钮
+        if (!on) {
+            // 关：旋钮内部挖空一点，和开状态区分更明显
+            g.fill(knobX + 1, trackY - 2, knobX + knobW - 1, trackY + 4, FACE);
+        }
     }
 
     @Override
