@@ -1664,9 +1664,22 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
      * 正数=右转、负数=左转。这个值直接由方位角差算出，
      * 不走 asin 投影，所以对准时能平滑收敛到 0，不会在 0 附近来回摆。
      */
+    /**
+     * 是否把操控权交还玩家。
+     *
+     * <p>「到达后 = 手动确认」模式下，一旦锁存到达就停止自动转向与推力，
+     * 让玩家自己把载具停稳、微调位置，直到按 R 确认前往下一站。
+     */
+    public boolean manualTakeoverActive() {
+        return arriveAction == ARRIVE_MANUAL && arrived;
+    }
+
     public int steeringRate(net.minecraft.core.Direction facing) {
         if (!armed || driveMode == DRIVE_MANUAL || !hasTarget() || facing == null) {
             return 0;
+        }
+        if (manualTakeoverActive()) {
+            return 0;   // 已到达：操控权交还玩家
         }
         // 目标方位必须用世界坐标算：
         // 终端在 SubLevel 上时 worldPosition 是 plot 坐标（因为 Sable 把飞行器的方块
@@ -1817,6 +1830,9 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
     public int controlPower(int channel, net.minecraft.core.Direction facing) {
         if (!armed || driveMode == DRIVE_MANUAL || !hasTarget() || facing == null) {
             return 0;
+        }
+        if (manualTakeoverActive()) {
+            return 0;   // 已到达：操控权交还玩家
         }
         // 通道相对机头的角度偏移：0=前进 180=后退 +90=左 -90=右
         double offset = switch (channel) {
