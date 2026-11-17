@@ -374,6 +374,19 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
                 Component.literal("只读：不允许把当前航线写入这张卡")));
         this.addRenderableWidget(this.readOnlyBtn);
 
+        // ---- 到达后手动确认：左侧图标列下方的滑块开关 ----
+        ToggleSwitch advanceSwitch = new ToggleSwitch(
+                cx + 6, this.topPos + 154, this.localAction == 3,
+                "到达后手动确认（按 R 前进）",
+                v -> {
+                    int next = v ? 3 : 1;
+                    PacketDistributor.sendToServer(new SetNavigationSettingsPayload(
+                            this.pos(), this.localMode, this.localPower, this.localRange,
+                            this.localRadius, next, this.localDecel, this.localSteerScale));
+                    this.localAction = next;
+                });
+        this.addRenderableWidget(advanceSwitch);
+
         // ---- 右侧按钮组 1：航线操作 ----
         // 循环/单程：文字随当前状态变，点一下切一次并重建控件
         net.minecraft.client.gui.components.Button loopBtn =
@@ -399,20 +412,6 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
         this.addRenderableWidget(NavButton.of(Component.literal("\u25bd"), b -> {
             PacketDistributor.sendToServer(new RouteEditPayload(this.pos(), 1));
         }).bounds(cx + 295, this.topPos + 234, 35, 16).build());
-
-        // ---- 到达后是否手动确认（直接给开关，不藏在设置页） ----
-        net.minecraft.client.gui.components.Button advanceBtn =
-                NavButton.of(this.advanceLabel(), b -> {
-                    int next = this.localAction == 3 ? 1 : 3;
-                    PacketDistributor.sendToServer(new SetNavigationSettingsPayload(
-                            this.pos(), this.localMode, this.localPower, this.localRange,
-                            this.localRadius, next, this.localDecel, this.localSteerScale));
-                    this.localAction = next;
-                    this.init(this.minecraft, this.width, this.height);
-                }).bounds(cx + 256, this.topPos + 254, 208, 16).build();
-        advanceBtn.setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
-                "开：到达后不自动前进，按 R 确认后去下一站 | 关：自动切到下一站")));
-        this.addRenderableWidget(advanceBtn);
 
         // ---- 右侧按钮组 2：目标操作 ----
         this.addRenderableWidget(NavButton.of(
@@ -893,13 +892,6 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
         NavigationTerminalBlockEntity be = this.terminal();
         return be == null ? "\u81ea\u52a8"
                 : NavigationTerminalBlockEntity.headingName(be.getHeadingOverride());
-    }
-
-    /** 主界面开关文案：到达后是否手动确认前进 */
-    private Component advanceLabel() {
-        boolean manual = this.localAction == 3;
-        return Component.literal("到达后手动确认："
-                + (manual ? "开" : "关") + "   [R]");
     }
 
     private String driveLockLabel() {
