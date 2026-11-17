@@ -376,6 +376,29 @@ public class NavigationTerminalBlock extends Block
         return net.minecraft.world.ItemInteractionResult.SUCCESS;
     }
 
+    /**
+     * 破坏时把卡槽里的物品一起掉出来。
+     *
+     * <p>卡槽是方块实体自带的容器，原版掉落逻辑不会管它；
+     * 不加这段的话，砸掉终端会让槽里的点卡/货运清单直接消失。
+     */
+    @Override
+    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(
+            BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        java.util.List<net.minecraft.world.item.ItemStack> drops =
+                new java.util.ArrayList<>(super.getDrops(state, params));
+        var be = params.getOptionalParameter(
+                net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        if (be instanceof
+                com.hzldm.createnavigationterminal.blockentity.NavigationTerminalBlockEntity term) {
+            net.minecraft.world.item.ItemStack inSlot = term.getCardSlot().getItem(0);
+            if (!inSlot.isEmpty()) {
+                drops.add(inSlot.copy());
+            }
+        }
+        return drops;
+    }
+
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide()

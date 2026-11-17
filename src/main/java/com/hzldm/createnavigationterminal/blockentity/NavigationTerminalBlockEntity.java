@@ -2213,6 +2213,12 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
         tag.putInt("DecelDistance", decelDistance);
         tag.putInt("SteerScaleDeg", steerScaleDeg);
         tag.putBoolean("Arrived", arrived);
+        // 卡槽内容必须进存档：SimpleContainer 不会自动序列化，
+        // 之前重进存档后槽里的点卡/货运清单会整个消失。
+        var slotStack = cardSlot.getItem(0);
+        if (!slotStack.isEmpty()) {
+            tag.put("CardSlotItem", slotStack.save(registries));
+        }
         tag.putString("BoundSeat", boundSeatUuid);
         tag.putString("TerminalName", terminalName == null ? "" : terminalName);
         tag.putBoolean("InFleet", inFleet);
@@ -2260,6 +2266,22 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        // 读回卡槽内容（只还原物品，不触发导入/导出逻辑）
+        if (tag.contains("CardSlotItem")) {
+            net.minecraft.world.item.ItemStack restored =
+                    net.minecraft.world.item.ItemStack.parseOptional(
+                            registries, tag.getCompound("CardSlotItem"));
+            if (!restored.isEmpty()) {
+                // 防止 setChanged() 触发 onCardSlotChanged() 把卡里的路点再导入一次
+                boolean prev = handlingCard;
+                handlingCard = true;
+                try {
+                    this.cardSlot.setItem(0, restored);
+                } finally {
+                    handlingCard = prev;
+                }
+            }
+        }
         this.targetName = safeTrim(tag.getString("TargetName"), 64);
         this.targetX = tag.getInt("TargetX");
         this.targetY = tag.getInt("TargetY");
