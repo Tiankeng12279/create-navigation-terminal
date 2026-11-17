@@ -41,6 +41,8 @@ public final class ModPayloads {
                         ModPayloads::handleSetTarget)
                 .playToServer(SetNavigationSettingsPayload.TYPE, SetNavigationSettingsPayload.STREAM_CODEC,
                         ModPayloads::handleSetSettings)
+                .playToServer(AdvanceRoutePayload.TYPE, AdvanceRoutePayload.STREAM_CODEC,
+                        ModPayloads::handleAdvanceRoute)
                 .playToServer(ResetArrivedPayload.TYPE, ResetArrivedPayload.STREAM_CODEC,
                         ModPayloads::handleResetArrived)
                 .playToServer(SaveWaypointCardPayload.TYPE, SaveWaypointCardPayload.STREAM_CODEC,
@@ -172,6 +174,26 @@ public final class ModPayloads {
     }
 
     /** 复位「已到达」锁存 */
+
+    private static void handleAdvanceRoute(AdvanceRoutePayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (!(context.player() instanceof net.minecraft.server.level.ServerPlayer player)) {
+                return;
+            }
+            var terminal = resolveTerminal(payload.pos(), context);
+            if (terminal == null) {
+                return;
+            }
+            // 只在手动确认模式下接受按键推进，自动模式忽略
+            if (terminal.getArriveAction()
+                    != com.hzldm.createnavigationterminal.blockentity
+                            .NavigationTerminalBlockEntity.ARRIVE_MANUAL) {
+                return;
+            }
+            terminal.advanceManually();
+            CreateNavigationTerminal.LOGGER.info("[Nav] 手动确认前进：{}", payload.pos());
+        });
+    }
 
     private static void handleResetArrived(ResetArrivedPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {

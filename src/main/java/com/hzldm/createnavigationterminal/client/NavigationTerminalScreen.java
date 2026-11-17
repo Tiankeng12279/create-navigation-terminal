@@ -134,7 +134,8 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
     private static final int ROUTE_LIST_Y = 188;
     private static final int ROUTE_VISIBLE = 4;
     private static final String[] MODE_NAMES = new String[]{"create_navigation_terminal.nav.mode.ramp", "create_navigation_terminal.nav.mode.switch", "create_navigation_terminal.nav.mode.fixed"};
-    private static final String[] ACTION_NAMES = new String[]{"create_navigation_terminal.nav.arrive.hold", "create_navigation_terminal.nav.arrive.silent", "create_navigation_terminal.nav.arrive.clear"};
+    private static final String[] ACTION_NAMES = new String[]{"create_navigation_terminal.nav.arrive.hold", "create_navigation_terminal.nav.arrive.silent", "create_navigation_terminal.nav.arrive.clear",
+            "create_navigation_terminal.nav.arrive.manual"};
     private static final String[] PAGE_NAMES = new String[]{"create_navigation_terminal.page.nav", "create_navigation_terminal.page.param", "create_navigation_terminal.page.route"};
     private int currentPage = 0;
     private List<WpTarget> candidates = List.of();
@@ -398,6 +399,20 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
         this.addRenderableWidget(NavButton.of(Component.literal("\u25bd"), b -> {
             PacketDistributor.sendToServer(new RouteEditPayload(this.pos(), 1));
         }).bounds(cx + 295, this.topPos + 234, 35, 16).build());
+
+        // ---- 到达后是否手动确认（直接给开关，不藏在设置页） ----
+        net.minecraft.client.gui.components.Button advanceBtn =
+                NavButton.of(this.advanceLabel(), b -> {
+                    int next = this.localAction == 3 ? 1 : 3;
+                    PacketDistributor.sendToServer(new SetNavigationSettingsPayload(
+                            this.pos(), this.localMode, this.localPower, this.localRange,
+                            this.localRadius, next, this.localDecel, this.localSteerScale));
+                    this.localAction = next;
+                    this.init(this.minecraft, this.width, this.height);
+                }).bounds(cx + 256, this.topPos + 254, 208, 16).build();
+        advanceBtn.setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
+                "开：到达后不自动前进，按 R 确认后去下一站 | 关：自动切到下一站")));
+        this.addRenderableWidget(advanceBtn);
 
         // ---- 右侧按钮组 2：目标操作 ----
         this.addRenderableWidget(NavButton.of(
@@ -880,6 +895,13 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
                 : NavigationTerminalBlockEntity.headingName(be.getHeadingOverride());
     }
 
+    /** 主界面开关文案：到达后是否手动确认前进 */
+    private Component advanceLabel() {
+        boolean manual = this.localAction == 3;
+        return Component.literal("到达后手动确认："
+                + (manual ? "开" : "关") + "   [R]");
+    }
+
     private String driveLockLabel() {
         NavigationTerminalBlockEntity be = this.terminal();
         return be == null ? "\u5f00" : (be.isDriveLocked() ? "\u5f00" : "\u5173");
@@ -1002,7 +1024,7 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
                 break;
             }
             case 5: {
-                this.localAction = NavigationTerminalScreen.wrap(this.localAction + delta, 0, 2);
+                this.localAction = NavigationTerminalScreen.wrap(this.localAction + delta, 0, 3);
                 break;
             }
             case 16: {
@@ -2699,7 +2721,8 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
     }
 
     /** 终端方块坐标。 */
-    private BlockPos pos() {
+    /** 终端坐标（供键位等外部调用） */
+    public BlockPos pos() {
         NavigationTerminalBlockEntity be = this.terminal();
         return be != null ? be.getBlockPos() : ((NavigationTerminalMenu)this.menu).getTerminalPos();
     }

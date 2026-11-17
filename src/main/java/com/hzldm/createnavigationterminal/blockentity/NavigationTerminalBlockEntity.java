@@ -55,6 +55,8 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
     public static final int ARRIVE_SILENT = 1;
     /** 到达后：自动清除目标（单次导航） */
     public static final int ARRIVE_CLEAR = 2;
+    /** 手动确认：到达后锁存，等玩家按键再前往下一站 */
+    public static final int ARRIVE_MANUAL = 3;
 
     public static final int MIN_POWER = 1;
     /** 强度上限：**14 不是 15**。15 在部分机构里是「常通/极限位」，会顶死舵机或让换向器不给调节 */
@@ -639,6 +641,24 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
     }
 
     /** 跳到航线下一个；单次模式到末尾则停在最后一站 */
+    /**
+     * 手动确认后前进到下一站（仅 {@link #ARRIVE_MANUAL} 模式的按键路径使用）。
+     *
+     * @return 是否真的推进了
+     */
+    public boolean advanceManually() {
+        if (route.isEmpty()) {
+            return false;
+        }
+        this.arrived = false;
+        nextRouteTarget();
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        }
+        return true;
+    }
+
     public void nextRouteTarget() {
         if (route.isEmpty()) {
             return;
@@ -794,7 +814,7 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
             range = Math.min(MAX_RANGE, this.arriveRadius + 1);
         }
         this.maxRange = range;
-        this.arriveAction = Mth.clamp(arriveAction, ARRIVE_HOLD, ARRIVE_CLEAR);
+        this.arriveAction = Mth.clamp(arriveAction, ARRIVE_HOLD, ARRIVE_MANUAL);
         this.decelDistance = Mth.clamp(decelDistance, MIN_DECEL, MAX_DECEL);
         this.steerScaleDeg = Mth.clamp(steerScaleDeg, MIN_STEER_SCALE, MAX_STEER_SCALE);
         onStateChanged();
@@ -2094,6 +2114,14 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
         }
         double dist = distanceToTarget();
         if (dist < 0 || dist > arriveRadius) {
+            return;
+        }
+        if (arriveAction == ARRIVE_MANUAL) {
+            // 手动模式：只锁存到达，不自动前进；由玩家按键（AdvanceRoutePayload）推进
+            logArrive(dist, "手动确认");
+            this.arrived = true;
+            setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
             return;
         }
         if (arriveAction == ARRIVE_CLEAR) {

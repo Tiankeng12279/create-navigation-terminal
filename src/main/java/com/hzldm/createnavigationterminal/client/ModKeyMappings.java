@@ -34,6 +34,30 @@ public final class ModKeyMappings {
             GLFW.GLFW_KEY_K,
             "key.categories.create_navigation_terminal");
 
+    /** 手动确认到达：前往航线下一站（到达动作=手动确认时生效） */
+    public static final KeyMapping ADVANCE_ROUTE = new KeyMapping(
+            "key.create_navigation_terminal.advance_route",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_R,
+            "key.categories.create_navigation_terminal");
+
+    /** 发“前进到下一站”请求：优先用当前打开的终端，否则用 HUD 正在跟踪的终端 */
+    private static void advanceRoute(Minecraft mc) {
+        net.minecraft.core.BlockPos pos = null;
+        if (mc.screen instanceof com.hzldm.createnavigationterminal.client.NavigationTerminalScreen s) {
+            pos = s.pos();
+        } else {
+            var data = NavigationHudOverlay.getCurrent();
+            if (data != null) {
+                pos = data.terminalPos();
+            }
+        }
+        if (pos != null) {
+            net.neoforged.neoforge.network.PacketDistributor.sendToServer(
+                    new com.hzldm.createnavigationterminal.network.AdvanceRoutePayload(pos));
+        }
+    }
+
     private ModKeyMappings() {
     }
 
@@ -41,6 +65,7 @@ public final class ModKeyMappings {
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(OPEN_CALIBRATION);
         event.register(LOCK_TARGET);
+        event.register(ADVANCE_ROUTE);
     }
 
     @SubscribeEvent
@@ -54,6 +79,9 @@ public final class ModKeyMappings {
             while (LOCK_TARGET.consumeClick()) {
                 // ignore
             }
+            while (ADVANCE_ROUTE.consumeClick()) {
+                // ignore
+            }
             return;
         }
 
@@ -63,6 +91,10 @@ public final class ModKeyMappings {
 
         while (LOCK_TARGET.consumeClick()) {
             lockAimedWaypoint(mc);
+        }
+
+        while (ADVANCE_ROUTE.consumeClick()) {
+            advanceRoute(mc);
         }
     }
 
