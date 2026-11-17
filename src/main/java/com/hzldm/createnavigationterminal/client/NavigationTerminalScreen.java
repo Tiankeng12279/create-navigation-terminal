@@ -629,6 +629,24 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
     }
 
     /**
+     * 收到服务端下发的货运清单数据后刷新候选列表。
+     *
+     * <p>打开界面时服务端会先发 FreightModePayload / FreightOrdersPayload，
+     * 但这两个包可能晚于 {@code init()} 到达，所以必须支持“到了再填”。
+     */
+    public void applyFreightData(boolean mode, java.util.List<WpTarget> orders) {
+        if (!mode) {
+            return;
+        }
+        this.freightMode = true;
+        if (orders != null && !orders.isEmpty()) {
+            this.candidates = new java.util.ArrayList<>(orders);
+            this.xaeroLoaded = true;
+            this.scroll = 0;
+        }
+    }
+
+    /**
      * 当前是否在思索（Ponder）场景里渲染这个界面——用来屏蔽真实存档数据。
      *
      * <p>三条判据，命中任一即认为在镜像里：
@@ -1499,7 +1517,12 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
 
     /** 路径点（自由选择，右下栏） */
     private void renderCandidatePanel(GuiGraphics g) {
-        NavGuiStyle.sectionTitle(g, this.font, 338, 86, 124, "\u8def\u5f84\u70b9");
+        NavGuiStyle.sectionTitle(g, this.font, 338, 86, 124,
+                this.freightMode ? "货运清单" : "路径点");
+        if (this.freightMode && this.candidates.isEmpty()) {
+            g.drawString(this.font, "当前无进行中订单",
+                    342, 112, NavGuiStyle.MUTED, false);
+        }
         int y = 106;
         int vis = CANDIDATE_VISIBLE;
         int maxScroll = Math.max(0, this.candidates.size() - vis);

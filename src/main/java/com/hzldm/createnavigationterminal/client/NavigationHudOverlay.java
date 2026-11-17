@@ -203,6 +203,19 @@ public final class NavigationHudOverlay {
     /** 供按键使用：当前 HUD 数据 */
     public static void setFreightOrders(java.util.List<com.hzldm.createnavigationterminal.item.WpTarget> orders) {
         freightOrders = orders == null ? java.util.List.of() : java.util.List.copyOf(orders);
+        notifyFreightScreen();
+    }
+
+    /** 包可能晚于界面初始化到达：已打开终端时立即把数据填进去 */
+    private static void notifyFreightScreen() {
+        try {
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc.screen instanceof NavigationTerminalScreen screen) {
+                screen.applyFreightData(freightManifestMode, freightOrders);
+            }
+        } catch (Throwable ignored) {
+            // 界面未打开时无需处理
+        }
     }
 
     public static java.util.List<com.hzldm.createnavigationterminal.item.WpTarget> getFreightOrders() {
@@ -211,6 +224,7 @@ public final class NavigationHudOverlay {
 
     public static void setFreightManifestMode(boolean v) {
         freightManifestMode = v;
+        notifyFreightScreen();
     }
 
     public static boolean isFreightManifestMode() {
