@@ -16,10 +16,15 @@ import java.util.function.Consumer;
  */
 public class MiniSlider extends AbstractWidget {
 
-    private static final int FRAME = 0xFF1C1C1C;
-    private static final int TRACK = 0xFF6E6E6E;
-    private static final int TRACK_ON = 0xFFBD905A;
-    private static final int KNOB = 0xFFD8D8D8;
+    /** 原版滑杆贴图（与选项界面同源，风格一致） */
+    private static final net.minecraft.resources.ResourceLocation TRACK =
+            net.minecraft.resources.ResourceLocation.withDefaultNamespace("widget/slider");
+    private static final net.minecraft.resources.ResourceLocation TRACK_HL =
+            net.minecraft.resources.ResourceLocation.withDefaultNamespace("widget/slider_highlighted");
+    private static final net.minecraft.resources.ResourceLocation HANDLE =
+            net.minecraft.resources.ResourceLocation.withDefaultNamespace("widget/slider_handle");
+    private static final net.minecraft.resources.ResourceLocation HANDLE_HL =
+            net.minecraft.resources.ResourceLocation.withDefaultNamespace("widget/slider_handle_highlighted");
 
     private boolean on;
     private final Consumer<Boolean> listener;
@@ -49,22 +54,15 @@ public class MiniSlider extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        int x = getX();
-        int y = getY();
-        int w = getWidth();
-        int h = getHeight();
-
-        // 轨道（居中细条）
-        int trackY = y + h / 2 - 2;
-        g.fill(x + 1, trackY, x + w - 1, trackY + 4, FRAME);
-        g.fill(x + 2, trackY + 1, x + w - 2, trackY + 3, on ? TRACK_ON : TRACK);
-
-        // 手柄（方形，随状态左右滑动）
-        int knobW = 7;
-        int knobX = on ? x + w - knobW - 1 : x + 1;
-        g.fill(knobX, y + 2, knobX + knobW, y + h - 2, FRAME);
-        g.fill(knobX + 1, y + 3, knobX + knobW - 1, y + h - 3,
-                this.isHoveredOrFocused() ? 0xFFFFFFFF : KNOB);
+        boolean hover = this.isHoveredOrFocused();
+        // 轨道：原版 200x20 贴图，按控件尺寸缩放绘制
+        g.blit(on ? TRACK_HL : TRACK, getX(), getY(), getWidth(), getHeight(),
+                0, 0, 200, 20, 200, 20);
+        // 手柄：8x20 贴图，按状态贴左/右
+        int handleW = Math.min(8, getWidth());
+        int handleX = on ? getX() + getWidth() - handleW : getX();
+        g.blit(hover ? HANDLE_HL : HANDLE, handleX, getY(), handleW, getHeight(),
+                0, 0, 8, 20, 8, 20);
     }
 
     @Override
