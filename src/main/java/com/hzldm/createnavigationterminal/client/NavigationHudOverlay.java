@@ -1128,7 +1128,7 @@ public final class NavigationHudOverlay {
     /** 每 2 秒从 Xaero 刷新一次路点缓存 */
     private static void refreshWaypointCache() {
         long now = System.currentTimeMillis();
-        if (now - lastWpRefresh < 2000L) {
+        if (now - lastWpRefresh < 1000L) {
             return;
         }
         lastWpRefresh = now;

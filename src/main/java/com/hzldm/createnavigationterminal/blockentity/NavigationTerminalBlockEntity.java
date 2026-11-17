@@ -203,6 +203,9 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
             if (!stack.isEmpty()) {
                 syncNow();
             }
+            // 槽位变化会发生在界面打开期间（玩家手动放入/取出清单），
+            // 这里主动把货运状态推给正在看这台终端的玩家，避免"要关掉重开才刷新"。
+            pushFreightStateToViewers();
             setChanged();
             return;
         }
@@ -438,6 +441,35 @@ public class NavigationTerminalBlockEntity extends BlockEntity implements MenuPr
     public boolean hasFreightManifest() {
         return com.hzldm.createnavigationterminal.integration.aerofreight.FreightWaypoints
                 .isManifest(cardSlot.getItem(0));
+    }
+
+    /**
+     * 把「是否货运清单 + 进行中订单」推给正在浏览本终端的玩家。
+     *
+     * <p>只在服务端调用；没有玩家打开界面时静默跳过。
+     */
+    private void pushFreightStateToViewers() {
+        if (!(level instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return;
+        }
+        boolean freight = hasFreightManifest();
+        for (net.minecraft.server.level.ServerPlayer player : serverLevel.players()) {
+            if (!(player.containerMenu instanceof
+                    com.hzldm.createnavigationterminal.menu.NavigationTerminalMenu menu)) {
+                continue;
+            }
+            if (!menu.getTerminalPos().equals(worldPosition)) {
+                continue;
+            }
+            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,
+                    new com.hzldm.createnavigationterminal.network.FreightModePayload(freight));
+            if (freight) {
+                var orders = com.hzldm.createnavigationterminal.integration.aerofreight
+                        .AeroFreightOrders.activeOrders(serverLevel, player);
+                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,
+                        new com.hzldm.createnavigationterminal.network.FreightOrdersPayload(orders));
+            }
+        }
     }
 
     public boolean hasCardInSlot() {
