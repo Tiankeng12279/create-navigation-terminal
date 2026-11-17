@@ -55,14 +55,11 @@ public class MiniSlider extends AbstractWidget {
     @Override
     protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         boolean hover = this.isHoveredOrFocused();
-        // 轨道：原版 200x20 贴图，按控件尺寸缩放绘制
-        g.blit(on ? TRACK_HL : TRACK, getX(), getY(), getWidth(), getHeight(),
-                0, 0, 200, 20, 200, 20);
-        // 手柄：8x20 贴图，按状态贴左/右
+        // 轨道 / 手柄都用 GUI 精灵图集里的原版素材（blitSprite 会自动解析路径）
+        g.blitSprite(on ? TRACK_HL : TRACK, getX(), getY(), getWidth(), getHeight());
         int handleW = Math.min(8, getWidth());
         int handleX = on ? getX() + getWidth() - handleW : getX();
-        g.blit(hover ? HANDLE_HL : HANDLE, handleX, getY(), handleW, getHeight(),
-                0, 0, 8, 20, 8, 20);
+        g.blitSprite(hover ? HANDLE_HL : HANDLE, handleX, getY(), handleW, getHeight());
     }
 
     @Override
