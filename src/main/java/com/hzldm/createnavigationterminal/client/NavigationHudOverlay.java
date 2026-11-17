@@ -1183,9 +1183,10 @@ public final class NavigationHudOverlay {
      * 又不会把普通怪物刷满屏幕。
      */
     /**
-     * 货运清单目的地：用单独的货箱图标与颜色绘制，与普通路点区分。
+     * 货运清单目的地：货箱图标 + 三行标签（站名 / 距离 / 高度差），与普通路点区分。
      *
-     * <p>数据来自服务端下发的 AeroFreight 进行中订单（{@link #getFreightOrders()}）。
+     * <p>已被设为当前导航目标的订单不再绘制 —— 目标本身已有专属标记，
+     * 重复画会叠出两层文字（见「5m 5m 5m」那种糊在一起的情况）。
      */
     private static void drawFreightMarkers(GuiGraphics g, Minecraft mc,
                                            int cx, int w, float heading,
@@ -1194,10 +1195,89 @@ public final class NavigationHudOverlay {
         if (orders == null || orders.isEmpty()) {
             return;
         }
+        NavigationHudPayload data = current;
+        int tgtX = data == null ? 0 : data.targetX();
+        int tgtZ = data == null ? 0 : data.targetZ();
+        boolean hasTarget = data != null && data.targetName() != null && !data.targetName().isEmpty();
+        int playerY = mc.player == null ? 0 : mc.player.blockPosition().getY();
+
         for (var t : orders) {
-            drawOneWaypoint(g, mc, cx, w, heading, camX, camZ, rowY0,
-                    t.x(), t.z(), HUD_FREIGHT, "", HudSprites.FREIGHT);
+            // 当前目标不重复画货箱
+            if (hasTarget && Math.abs(t.x() - tgtX) <= 2 && Math.abs(t.z() - tgtZ) <= 2) {
+                continue;
+            }
+            drawFreightMarker(g, mc, cx, w, heading, camX, camZ, rowY0, t, playerY);
         }
+    }
+
+    /**
+     * 该坐标是否已经作为货运订单绘制过。
+     *
+     * <p>AeroFreight 也会把订单写进 Xaero，若两边都画就会在同一位置叠出两层标记
+     * （表现为几个「5m」糊在一起）。
+     */
+    private static boolean drawnAsFreight(int x, int z) {
+        java.util.List<com.hzldm.createnavigationterminal.item.WpTarget> orders = getFreightOrders();
+        if (orders == null || orders.isEmpty()) {
+            return false;
+        }
+        for (var t : orders) {
+            if (Math.abs(t.x() - x) <= 2 && Math.abs(t.z() - z) <= 2) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 单个货运标记：图标 + 站名 + 距离 + 高度差 */
+    private static void drawFreightMarker(GuiGraphics g, Minecraft mc,
+                                          int cx, int w, float heading,
+                                          double camX, double camZ, int rowY0,
+                                          com.hzldm.createnavigationterminal.item.WpTarget t,
+                                          int playerY) {
+        double dx = t.x() - camX;
+        double dz = t.z() - camZ;
+        double dist = Math.sqrt(dx * dx + dz * dz);
+        if (dist < 2.0) {
+            return;
+        }
+        double tYaw = Math.toDegrees(Math.atan2(-dx, dz));
+        double rel = normalizeDeg(tYaw - heading);
+        boolean behind = Math.abs(rel) > 90.0;
+        int px;
+        if (behind) {
+            px = rel >= 0 ? w - 24 : 24;
+        } else {
+            double nx = Math.max(-1.0, Math.min(1.0, rel / FOV_HALF));
+            px = cx + (int) Math.round(nx * (w * 0.42));
+        }
+
+        String name = t.name();
+        String distText = ((int) Math.round(dist)) + "m";
+        int dy = t.y() - playerY;
+        String dyText = (dy >= 0 ? "+" : "") + dy;
+
+        int halfW = Math.max(mc.font.width(name), Math.max(mc.font.width(distText), mc.font.width(dyText))) / 2 + 4;
+        int lane = pickMarkerLane(px, halfW);
+        if (lane < 0) {
+            return;
+        }
+        int rowY = rowY0 + lane * MARKER_LANE_H;
+
+        // 图标
+        int pxSize = (int) Math.round(20 * MARKER_SCALE);
+        if (!HudSprites.drawCentered(g, HudSprites.FREIGHT, px, rowY, pxSize, HUD_FREIGHT)) {
+            g.fill(px - 4, rowY - 4, px + 5, rowY - 3, HUD_FREIGHT);
+            g.fill(px - 4, rowY + 4, px + 5, rowY + 5, HUD_FREIGHT);
+            g.fill(px - 4, rowY - 4, px - 3, rowY + 5, HUD_FREIGHT);
+            g.fill(px + 4, rowY - 4, px + 5, rowY + 5, HUD_FREIGHT);
+        }
+
+        // 三行标签：站名 / 距离 / 高度差
+        int ty = rowY + pxSize / 2 + 2;
+        g.drawCenteredString(mc.font, name, px, ty, HUD_FREIGHT);
+        g.drawCenteredString(mc.font, distText, px, ty + 10, HUD_FREIGHT);
+        g.drawCenteredString(mc.font, dyText, px, ty + 20, withAlpha(HUD_FREIGHT, 0xB0));
     }
 
     private static void drawFleetMarkers(GuiGraphics g, Minecraft mc,
@@ -1452,6 +1532,9 @@ public final class NavigationHudOverlay {
             for (var wp : cachedWaypoints) {
                 if (isWaypointHidden(wp.name())) {
                     continue;
+                }
+                if (drawnAsFreight(wp.x(), wp.z())) {
+                    continue;   // 已由货运标记绘制，避免重复
                 }
                 // 跳过当前导航目标
                 if (Math.abs(wp.x() - curTargetX) <= 2 && Math.abs(wp.z() - curTargetZ) <= 2) {
