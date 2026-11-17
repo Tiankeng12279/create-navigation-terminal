@@ -383,9 +383,17 @@ public class NavigationTerminalBlock extends Block
                 && player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(terminal, buf -> buf.writeBlockPos(pos));
             // 卡槽内容不同步到客户端，打开界面时告知是否为货运清单模式
+            boolean freight = terminal.hasFreightManifest();
             net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer,
-                    new com.hzldm.createnavigationterminal.network.FreightModePayload(
-                            terminal.hasFreightManifest()));
+                    new com.hzldm.createnavigationterminal.network.FreightModePayload(freight));
+            if (freight) {
+                // 卡槽里放的是货运清单：直接把该玩家进行中的订单目的地推给客户端
+                var orders = com.hzldm.createnavigationterminal.integration.aerofreight
+                        .AeroFreightOrders.activeOrders(
+                                (net.minecraft.server.level.ServerLevel) level, player);
+                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer,
+                        new com.hzldm.createnavigationterminal.network.FreightOrdersPayload(orders));
+            }
         }
         return InteractionResult.CONSUME;
     }

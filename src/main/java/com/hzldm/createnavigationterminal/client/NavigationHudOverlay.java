@@ -201,6 +201,14 @@ public final class NavigationHudOverlay {
     }
 
     /** 供按键使用：当前 HUD 数据 */
+    public static void setFreightOrders(java.util.List<com.hzldm.createnavigationterminal.item.WpTarget> orders) {
+        freightOrders = orders == null ? java.util.List.of() : java.util.List.copyOf(orders);
+    }
+
+    public static java.util.List<com.hzldm.createnavigationterminal.item.WpTarget> getFreightOrders() {
+        return freightOrders;
+    }
+
     public static void setFreightManifestMode(boolean v) {
         freightManifestMode = v;
     }
@@ -663,6 +671,9 @@ public final class NavigationHudOverlay {
     private static volatile NavigationHudPayload current = null;
     /** 终端卡槽里是否放了 AeroFreight 货运清单（由服务端告知） */
     private static volatile boolean freightManifestMode = false;
+    /** 卡槽里货运清单对应的订单目的地（服务端下发） */
+    private static volatile java.util.List<com.hzldm.createnavigationterminal.item.WpTarget> freightOrders =
+            java.util.List.of();
 
     /** 世界渲染阶段缓存下来的真实投影矩阵（GUI 阶段拿不到） */
     private static volatile org.joml.Matrix4f cachedProjection = null;

@@ -583,7 +583,9 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
         this.freightMode = NavigationHudOverlay.isFreightManifestMode()
                 || com.hzldm.createnavigationterminal.integration.aerofreight.FreightWaypoints
                         .isManifest(this.minecraft == null ? null : this.minecraft.player.getMainHandItem());
-        List<WpTarget> cardPts = this.freightMode ? List.of() : this.readCardPoints();
+        List<WpTarget> cardPts = this.freightMode
+                ? java.util.List.copyOf(NavigationHudOverlay.getFreightOrders())
+                : this.readCardPoints();
         this.candidates = cardPts;
         this.xaeroLoaded = false;
         this.scroll = 0;
@@ -594,6 +596,12 @@ extends AbstractContainerScreen<NavigationTerminalMenu> {
             demo.add(new WpTarget("\u793a\u4f8b2", 140, 64, 60, this.currentDim()));
             demo.add(new WpTarget("\u793a\u4f8b3", -40, 80, 180, this.currentDim()));
             this.candidates = demo;
+            this.xaeroLoaded = true;
+            return;
+        }
+        if (this.freightMode && !cardPts.isEmpty()) {
+            // 服务端已下发订单：直接作为候选，不再依赖 Xaero
+            this.candidates = cardPts;
             this.xaeroLoaded = true;
             return;
         }

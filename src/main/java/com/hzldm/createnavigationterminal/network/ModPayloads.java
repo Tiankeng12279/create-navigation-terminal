@@ -94,7 +94,10 @@ public final class ModPayloads {
                         ModPayloads::handleHud)
                 // S2C：终端卡槽里是否放了货运清单
                 .playToClient(FreightModePayload.TYPE, FreightModePayload.STREAM_CODEC,
-                        ModPayloads::handleFreightMode);
+                        ModPayloads::handleFreightMode)
+                // S2C：货运清单对应的进行中订单
+                .playToClient(FreightOrdersPayload.TYPE, FreightOrdersPayload.STREAM_CODEC,
+                        ModPayloads::handleFreightOrders);
         // 卡片名字 / 只读标记（同一 registrar 里续注册）
         event.registrar("1")
                 .playToServer(SetCardSettingsPayload.TYPE, SetCardSettingsPayload.STREAM_CODEC,
@@ -389,6 +392,12 @@ public final class ModPayloads {
     }
 
     /** 航线编辑：上一站 / 下一站 / 删除当前站 */
+    private static void handleFreightOrders(FreightOrdersPayload payload, IPayloadContext context) {
+        context.enqueueWork(() ->
+                com.hzldm.createnavigationterminal.client.NavigationHudOverlay
+                        .setFreightOrders(payload.orders()));
+    }
+
     private static void handleFreightMode(FreightModePayload payload, IPayloadContext context) {
         context.enqueueWork(() ->
                 com.hzldm.createnavigationterminal.client.NavigationHudOverlay
